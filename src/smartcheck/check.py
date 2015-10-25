@@ -9,8 +9,8 @@ TESTS_SECTION_START = 'SMART Self-test log structure revision number'
 
 INFORMATION_RE = [
 	("model_family", re.compile('Model Family: (.*)', re.UNICODE)),
-	("device_model", re.compile("Device Model: (.*)", re.UNICODE)),
-	("serial", re.compile("Serial Number: (.*)", re.UNICODE)),
+	("device_model", re.compile("(?:Device Model|Product): (.*)", re.UNICODE)),
+	("serial", re.compile("Serial Number: (.*)", re.UNICODE | re.IGNORECASE)),
 	("firmware_version", re.compile("Firmware version: (.*)", re.UNICODE)),
 	("ata_version", re.compile("ATA Version is: (.*)", re.UNICODE)),
 	("sata_version", re.compile("SATA Version is: (.*)", re.UNICODE)),

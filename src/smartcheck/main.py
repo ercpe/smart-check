@@ -15,6 +15,9 @@ if __name__ == "__main__":
 	check = SMARTCheck(open(args.file, 'r'), args.data_file)
 
 	import pprint
-	#pprint.pprint(check.information)
+	pprint.pprint(check.information)
+	if not check.information:
+		import sys
+		sys.exit(1)
 	#pprint.pprint(check.smart_data)
-	pprint.pprint(check.self_tests)
+	#pprint.pprint(check.self_tests)

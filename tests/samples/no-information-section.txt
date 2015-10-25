@@ -1,0 +1,25 @@
+smartctl 6.3 2014-07-26 r3976 [x86_64-linux-3.18.9-hardened-1] (local build)
+Copyright (C) 2002-14, Bruce Allen, Christian Franke, www.smartmontools.org
+
+=== START OF READ SMART DATA SECTION ===
+SMART Health Status: OK
+
+Current Drive Temperature:     30 C
+Drive Trip Temperature:        25 C
+
+Manufactured in week 30 of year 2002
+Specified cycle count over device lifetime:  4278190080
+Accumulated start-stop cycles:  256
+Elements in grown defect list: 0
+
+Error counter log:
+           Errors Corrected by           Total   Correction     Gigabytes    Total
+               ECC          rereads/    errors   algorithm      processed    uncorrected
+           fast | delayed   rewrites  corrected  invocations   [10^9 bytes]  errors
+read:          0        0         0         0          0          0.000           0
+write:         0        0         0         0          0          0.000           0
+
+Non-medium error count:        0
+
+Device does not support Self Test logging
+

@@ -1,0 +1,41 @@
+smartctl 6.3 2014-07-26 r3976 [x86_64-linux-3.18.9-hardened-1] (local build)
+Copyright (C) 2002-14, Bruce Allen, Christian Franke, www.smartmontools.org
+
+=== START OF INFORMATION SECTION ===
+Vendor:               WDC
+Product:              WD40EFRX-68WT0N0
+Revision:             R001
+User Capacity:        4,000,787,030,016 bytes [4.00 TB]
+Logical block size:   512 bytes
+Rotation Rate:        10000 rpm
+Logical Unit id:      0x001b4d2101326800
+Serial number:        WD-WCC4E0664813
+Device type:          disk
+Transport protocol:   Fibre channel (FCP-2)
+Local Time is:        Wed Oct 21 13:17:12 2015 CEST
+SMART support is:     Available - device has SMART capability.
+SMART support is:     Enabled
+Temperature Warning:  Disabled or Not Supported
+
+=== START OF READ SMART DATA SECTION ===
+SMART Health Status: OK
+
+Current Drive Temperature:     30 C
+Drive Trip Temperature:        25 C
+
+Manufactured in week 30 of year 2002
+Specified cycle count over device lifetime:  4278190080
+Accumulated start-stop cycles:  256
+Elements in grown defect list: 0
+
+Error counter log:
+           Errors Corrected by           Total   Correction     Gigabytes    Total
+               ECC          rereads/    errors   algorithm      processed    uncorrected
+           fast | delayed   rewrites  corrected  invocations   [10^9 bytes]  errors
+read:          0        0         0         0          0          0.000           0
+write:         0        0         0         0          0          0.000           0
+
+Non-medium error count:        0
+
+Device does not support Self Test logging
+

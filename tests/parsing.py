@@ -24,6 +24,10 @@ class InformationBlockParsingTest(unittest.TestCase):
 				'sata_version': 'SATA 3.0, 6.0 Gb/s (current: 6.0 Gb/s)',
 				'serial': 'Z1F23HW0'
 				}),
+			('areca-WD40EFRX.txt', {
+				'device_model': 'WD40EFRX-68WT0N0',
+				'serial': 'WD-WCC4E0664813'
+				}),
 			]:
 
 			check = SMARTCheck(open(os.path.join(samples_path, filename)))
@@ -33,6 +37,9 @@ class InformationBlockParsingTest(unittest.TestCase):
 		check = SMARTCheck(StringIO(""))
 		self.assertDictEqual(check.information, {})
 
+	def test_information_section_missing(self):
+		check = SMARTCheck(open(os.path.join(samples_path, 'no-information-section.txt')))
+		self.assertDictEqual(check.information, {})
 
 class SMARTDataParsingTest(unittest.TestCase):
 	def test_parsing(self):
