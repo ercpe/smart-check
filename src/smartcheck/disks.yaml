@@ -1,14 +1,44 @@
+# S.M.A.R.T. attribute per device
+#
+#
+#- model: <device-model-regex>
+#  attributes:
+#    <attribute-id>: [VALUE|RAW_VALUE, min, max]
+#
+#    where min <= value <= max means the value is OK
+#
+#  - OR -
+#
+#- model: <device-model-regex>
+#  attributes:
+#    <attribute-id>:
+#      field: "VALUE" or "RAW_VALUE" # (optional, default is RAW_VALUE)
+#      min: int # (optional)
+#      max: int # (optional)
+#
+#      warn_threshold: "<start>:" OR ":<end>" or "<start>:<end>" # The range in which the value is consired as WARNING
+#      crit_threshold: "<start>:" OR ":<end>" or "<start>:<end>" # The range in which the value is consired as CRITICAL
+#
+#      Note: you cannot specify min/max AND *_threshold at the same time
+#      Note: The meaning of min and max is the opposite of the notation above: The value is considired bad
+#            if the value is above min and/or below max
+#
+# <device-model-regex> can also be a list of regular expressions
+
+
+######################################
 # Vendor: Western Digital
+######################################
 
 # Western Digital RE (2TB, 3TB, 4TB)
 - model: "^WDC WD[234]000FYYZ-01UL1B[012]$"
   attributes:
-#    1:
-#      field: "VALUE"
-#      min: 999
-#      max: 999
-    1: ["VALUE", 52, 999] # Raw Read Error Rate
-    3: ["VALUE", 22, 999] # Spin Up Time
+    1: # Raw Read Error Rate
+      warn_threshold: "62:"
+      crit_threshold: "52:"
+    3: # Spin Up Time
+      warn_threshold: "32:"
+      crit_threshold: "22:"
     5: ["RAW_VALUE", 0, 20] # Re-allocated Sector Count
     10: ["RAW_VALUE", 0, 10] # Spin retry count
     11: ["RAW_VALUE", 0, 10] # calibration retry count
