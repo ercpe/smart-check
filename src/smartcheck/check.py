@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import logging
 import yaml
 import re
 
@@ -53,7 +54,7 @@ class SMARTCheck(object):
 		if self._database is None:
 			if self.db_path:
 				with open(self.db_path) as f:
-					self._database = yaml.load(f)
+					self._database = yaml.load(f) or {}
 			else:
 				self._database = []
 		return self._database
@@ -69,6 +70,7 @@ class SMARTCheck(object):
 		for dev in self.database:
 			device_regexprs = dev['model'] if isinstance(dev['model'], list) else [dev['model']]
 			if any(re.match(r, device_model, re.IGNORECASE) for r in device_regexprs):
+				logging.debug("One of %s matches '%s'" % (device_regexprs, device_model))
 				return dev['attributes']
 		return None
 
