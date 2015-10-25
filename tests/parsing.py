@@ -1,22 +1,23 @@
 # -*- coding: utf-8 -*-
+from StringIO import StringIO
 import os
 import unittest
 from smartcheck.check import SMARTCheck
 
+samples_path = os.path.join(os.path.dirname(__file__), 'samples')
 
 class InformationBlockParsingTest(unittest.TestCase):
 
 	def test_parsing(self):
-		samples_path = os.path.dirname(__file__)
 		for filename, expected_data in [
-			('samples/seagate-barracuda-broken1.txt', {
+			('seagate-barracuda-broken1.txt', {
 				'ata_version': 'ATA8-ACS T13/1699-D revision 4',
 				'device_model': 'ST3000DM001-1CH166',
 				'model_family': 'Seagate Barracuda 7200.14 (AF)',
 				'sata_version': 'SATA 3.0, 6.0 Gb/s (current: 6.0 Gb/s)',
 				'serial': 'Z1F220RJ'
 				}),
-			('samples/seagate-barracuda-broken2.txt', {
+			('seagate-barracuda-broken2.txt', {
 				'ata_version': 'ATA8-ACS T13/1699-D revision 4',
 				'device_model': 'ST3000DM001-1CH166',
 				'model_family': 'Seagate Barracuda 7200.14 (AF)',
@@ -28,12 +29,15 @@ class InformationBlockParsingTest(unittest.TestCase):
 			check = SMARTCheck(open(os.path.join(samples_path, filename)))
 			self.assertDictEqual(check.information, expected_data)
 
+	def test_information_section_missing(self):
+		check = SMARTCheck(StringIO(""))
+		self.assertDictEqual(check.information, {})
+
 
 class SMARTDataParsingTest(unittest.TestCase):
 	def test_parsing(self):
-		samples_path = os.path.dirname(__file__)
 		for filename, overall_health, attributes in [
-			('samples/seagate-barracuda-broken1.txt', 'PASSED', [
+			('seagate-barracuda-broken1.txt', 'PASSED', [
 				('1', 'Raw_Read_Error_Rate', '0x000f', '103', '099', '006', 'Pre-fail', 'Always', '-', '5845168'),
 				('3', 'Spin_Up_Time', '0x0003', '095', '095', '000', 'Pre-fail', 'Always', '-', '0'),
 				('4', 'Start_Stop_Count', '0x0032', '100', '100', '020', 'Old_age', 'Always', '-', '7'),
@@ -64,13 +68,20 @@ class SMARTDataParsingTest(unittest.TestCase):
 			self.assertEqual(check.smart_data['overall_health_status'], overall_health)
 			self.assertEqual(check.smart_data['attributes'], attributes)
 
+	def test_data_section_missing(self):
+		check = SMARTCheck(StringIO(""))
+		self.assertDictEqual(check.smart_data, {})
+
+	def test_data_section_missing2(self):
+		check = SMARTCheck(open(os.path.join(samples_path, 'no-data-section.txt')))
+		self.assertDictEqual(check.smart_data, {})
+
 
 class SelfTestParsingTest(unittest.TestCase):
 
 	def test_parsing(self):
-		samples_path = os.path.dirname(__file__)
 		for filename, tests in [
-			('samples/seagate-barracuda-broken1.txt', [
+			('seagate-barracuda-broken1.txt', [
 				('1', 'Extended offline', 'Completed: read failure', '80%', '23113', '1737376544'),
 				('2', 'Extended offline', 'Completed: read failure', '80%', '23000', '1737376544'),
 				('3', 'Extended offline', 'Interrupted (host reset)', '80%', '22998', '-'),

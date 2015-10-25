@@ -1,0 +1,25 @@
+smartctl 6.1 2013-03-16 r3800 [x86_64-linux-4.0.5-gentoo] (local build)
+Copyright (C) 2002-13, Bruce Allen, Christian Franke, www.smartmontools.org
+
+=== START OF INFORMATION SECTION ===
+Model Family:     Seagate Barracuda 7200.14 (AF)
+Device Model:     ST3000DM001-1CH166
+Serial Number:    Z1F220RJ
+LU WWN Device Id: 5 000c50 04f692485
+Firmware Version: CC24
+User Capacity:    3,000,592,982,016 bytes [3.00 TB]
+Sector Sizes:     512 bytes logical, 4096 bytes physical
+Rotation Rate:    7200 rpm
+Device is:        In smartctl database [for details use: -P show]
+ATA Version is:   ATA8-ACS T13/1699-D revision 4
+SATA Version is:  SATA 3.0, 6.0 Gb/s (current: 6.0 Gb/s)
+Local Time is:    Sat Oct 10 14:03:18 2015 CEST
+
+==> WARNING: A firmware update for this drive may be available,
+see the following Seagate web pages:
+http://knowledge.seagate.com/articles/en_US/FAQ/207931en
+http://knowledge.seagate.com/articles/en_US/FAQ/223651en
+
+SMART support is: Available - device has SMART capability.
+SMART support is: Enabled
+

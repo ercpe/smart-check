@@ -6,6 +6,7 @@ except ImportError:
     import unittest
 
 from parsing import *
+from check import *
 
 if __name__ == '__main__':
     unittest.main()

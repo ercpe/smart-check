@@ -12,9 +12,9 @@ if __name__ == "__main__":
 
 	args = parser.parse_args()
 
-	check = SMARTCheck(open(args.file, 'r'))
+	check = SMARTCheck(open(args.file, 'r'), args.data_file)
 
 	import pprint
 	#pprint.pprint(check.information)
-	pprint.pprint(check.smart_data)
-	#pprint.pprint(check.self_tests)
+	#pprint.pprint(check.smart_data)
+	pprint.pprint(check.self_tests)
