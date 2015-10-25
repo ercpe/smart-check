@@ -25,24 +25,487 @@
 #
 # <device-model-regex> can also be a list of regular expressions
 
+- model: "Crucial_CT1024MX200SSD1"
+  attributes:
+    5: ["RAW_VALUE", 10, 20] # Reallocated NAND Block Count
+    171: ["RAW_VALUE", 0, 10] # Program Fail Count
+    172: ["RAW_VALUE", 0, 10] # Erase Fail Count
+    180: # Unused Reserve (Spare) NAND Blocks
+      warn_threshold: ":250"
+      crit_threshold: ":150"
+    184: # Error Correction Count
+      field: "VALUE"
+      warn_threshold: ":96"
+      crit_threshold: ":91"
+    187: ["RAW_VALUE", 0, 10] # Reported Uncorrectable Errors
+    194: ["RAW_VALUE", 60, 70] # Enclosure Temperature
+    198: ["RAW_VALUE", 0, 10] # SMART Offline Scan Uncorrectable Error Count
+    199: ["RAW_VALUE", 0, 10] # Ultra-DMA CRC Error Count
+    202: # Percent Lifetime Remaining
+      field: "VALUE"
+      warn_threshold: ":16"
+      crit_threshold: ":6"
+    1024: ["VALUE", 0, 10] # ATA error count (custom)
 
-######################################
-# Vendor: Western Digital
-######################################
-
-# Western Digital RE (2TB, 3TB, 4TB)
-- model: "^WDC WD[234]000FYYZ-01UL1B[012]$"
+- model:
+  - "HGST HUH728080ALE600"
+  - "HGST HUH728080ALE601"
+  - "HGST HUH728080ALE604"
+  - "HGST HUH728060ALE600"
+  - "HGST HUH728060ALE601"
+  - "HGST HUH726060ALE604"
   attributes:
     1: # Raw Read Error Rate
-      warn_threshold: "62:"
-      crit_threshold: "52:"
+      field: "VALUE"
+      warn_threshold: ":26"
+      crit_threshold: ":16"
+    2: # Throughput Performance
+      field: "VALUE"
+      warn_threshold: ":64"
+      crit_threshold: ":54"
     3: # Spin Up Time
-      warn_threshold: "32:"
-      crit_threshold: "22:"
-    5: ["RAW_VALUE", 0, 20] # Re-allocated Sector Count
-    10: ["RAW_VALUE", 0, 10] # Spin retry count
-    11: ["RAW_VALUE", 0, 10] # calibration retry count
+      field: "VALUE"
+      warn_threshold: ":34"
+      crit_threshold: ":24"
+    5: ["RAW_VALUE", 20, 40] # Re-allocated Sector Count
+    8: # Seek Time Performance
+      field: "VALUE"
+      warn_threshold: ":30"
+      crit_threshold: ":20"
+    10: ["RAW_VALUE", 0, 10] # Spin Retry Count
+    22: # Internal Environment status (Current Helium Level)
+      field: "VALUE"
+      warn_threshold: ":35"
+      crit_threshold: ":25"
     196: ["RAW_VALUE", 0, 10] # Reallocated Event Count
     197: ["RAW_VALUE", 0, 10] # Current Pending Sector
     198: ["RAW_VALUE", 0, 10] # Offline Uncorrectable
     199: ["RAW_VALUE", 0, 10] # UDMA CRC Error Count
+
+- model:
+  - "INTEL SSDSC2BA200G4"
+  - "INTEL SSDSC2BA400G4"
+  - "INTEL SSDSC2BA800G4"
+  - "INTEL SSDSC2BA012T4"
+  - "SSDSC2BX100G401"
+  - "SSDSC2BX200G401"
+  - "SSDSC2BX400G401"
+  - "SSDSC2BX480G401"
+  - "SSDSC2BX800G401"
+  - "SSDSC2BA012T401"
+  - "SSDSC2BX016T401"
+  attributes:
+    5: ["RAW_VALUE", 20, 40] # Re-allocated Sector Count
+    171: # Program Fail Count
+      field: "VALUE"
+      warn_threshold: ":16"
+      crit_threshold: ":11"
+    172: # Erase Fail Count
+      field: "VALUE"
+      warn_threshold: ":16"
+      crit_threshold: ":11"
+    175: # Power Loss Protection Failure
+      field: "VALUE"
+      warn_threshold: ":100"
+      crit_threshold: ":100"
+    183: ["RAW_VALUE", 20, 40] # SATA Downshift Count
+    184: ["RAW_VALUE", 20, 40] # End-to-End Error Detection Count
+    187: ["RAW_VALUE", 0, 10] # Uncorrectable Error Count
+    190: ["RAW_VALUE", 50, 60] # Temperature - Airflow Temperature (Case)
+    194: ["RAW_VALUE", 50, 60] # Temperature - Device Internal Temperature
+    197: ["RAW_VALUE", 0, 10] # Pending Sector Count
+    199: ["RAW_VALUE", 0, 10] # CRC Error Count
+    232: # Available Reserved Space
+      field: "VALUE"
+      warn_threshold: ":16"
+      crit_threshold: ":11"
+    233: # Media Wearout Indicator
+      field: "VALUE"
+      warn_threshold: ":16"
+      crit_threshold: ":6"
+    1024: ["VALUE", 0, 10] # ATA error count (custom)
+
+- model:
+  - "Intel 320 Series SSDs"
+  - "INTEL SSDSA2CW160G3"
+  - "INTEL SSDSA2CT040G3"
+  attributes:
+    5: ["RAW_VALUE", 20, 40] # Re-allocated Sector Count
+    171: # Program Fail Count
+      field: "VALUE"
+      warn_threshold: ":16"
+      crit_threshold: ":11"
+    172: # Erase Fail Count
+      field: "VALUE"
+      warn_threshold: ":16"
+      crit_threshold: ":11"
+    184: # End-to-End Error Detection Count
+      field: "VALUE"
+      warn_threshold: ":96"
+      crit_threshold: ":91"
+    187: ["RAW_VALUE", 0, 10] # Uncorrectable Error Count
+    199: ["RAW_VALUE", 0, 10] # CRC Error Count (FW 4Px10362 and later)
+    232: # Available Reserved Space
+      field: "VALUE"
+      warn_threshold: ":16"
+      crit_threshold: ":11"
+    233: # Media Wearout Indicator
+      field: "VALUE"
+      warn_threshold: ":16"
+      crit_threshold: ":6"
+    1024: ["VALUE", 0, 10] # ATA error count (custom)
+
+- model:
+  - "Intel 520 Series SSDs"
+  - "INTEL SSDSC2CW240A3"
+  attributes:
+    5: ["RAW_VALUE", 20, 40] # Reallocated sector count
+    171: # Program fail count
+      warn_threshold: ":16"
+      crit_threshold: ":11"
+    172: # Erase fail count
+      warn_threshold: ":16"
+      crit_threshold: ":11"
+    184: # End-to-End Error Detection
+      field: "VALUE"
+      warn_threshold: ":96"
+      crit_threshold: ":91"
+    187: ["RAW_VALUE", 0, 10] # Uncorrectable Error Count
+    199: ["RAW_VALUE", 0, 10] # Sata CRC error count
+    232: # Available Reserved Space
+      field: "VALUE"
+      warn_threshold: ":16"
+      crit_threshold: ":11"
+    233: # Media Wearout Indicator
+      field: "VALUE"
+      warn_threshold: ":16"
+      crit_threshold: ":6"
+    1024: ["VALUE", 0, 10] # ATA error count (custom)
+
+- model:
+  - "Intel DC S3500 Series SSDs"
+  - "INTEL SSDSC2BB080G4"
+  - "INTEL SSDSC2BB120G4"
+  - "INTEL SSDSC2BB160G4"
+  - "INTEL SSDSC2BB240G4"
+  - "INTEL SSDSC2BB300G4"
+  - "INTEL SSDSC2BB480G4"
+  - "INTEL SSDSC2BB600G4"
+  - "INTEL SSDSC2BB800G4"
+  - "INTEL SSDSC2BB012T4"
+  attributes:
+    5: ["RAW_VALUE", 20, 40] # Re-allocated Sector Count
+    171: # Program Fail Count
+      field: "VALUE"
+      warn_threshold: ":16"
+      crit_threshold: ":11"
+    172: # Erase Fail Count
+      field: "VALUE"
+      warn_threshold: ":16"
+      crit_threshold: ":11"
+    175: # Power Loss Protection Failure
+      field: "VALUE"
+      warn_threshold: ":100"
+      crit_threshold: ":100"
+    183: ["RAW_VALUE", 20, 40] # SATA Downshift Count
+    184: ["RAW_VALUE", 20, 40] # End-to-End Error Detection Count
+    187: ["RAW_VALUE", 0, 10] # Uncorrectable Error Count
+    190: ["RAW_VALUE", 50, 60] # Temperature - Airflow Temperature (Case)
+    194: ["RAW_VALUE", 50, 60] # Temperature - Device Internal Temperature
+    197: ["RAW_VALUE", 0, 10] # Pending Sector Count
+    199: ["RAW_VALUE", 0, 10] # CRC Error Count
+    232: # Available Reserved Space
+      field: "VALUE"
+      warn_threshold: ":16"
+      crit_threshold: ":11"
+    233: # Media Wearout Indicator
+      field: "VALUE"
+      warn_threshold: ":16"
+      crit_threshold: ":6"
+    1024: ["VALUE", 0, 10] # ATA error count (custom)
+
+- model:
+  - "Intel DC S3700 Series SSDs"
+  - "INTEL SSDSC2BA100G3"
+  - "INTEL SSDSC2BA200G3"
+  - "INTEL SSDSC2BA400G3"
+  - "INTEL SSDSC2BA800G3"
+  attributes:
+    5: ["RAW_VALUE", 20, 40] # Re-allocated Sector Count
+    171: # Program Fail Count
+      field: "VALUE"
+      warn_threshold: ":16"
+      crit_threshold: ":11"
+    172: # Erase Fail Count
+      field: "VALUE"
+      warn_threshold: ":16"
+      crit_threshold: ":11"
+    175: # Power Loss Protection Failure
+      field: "VALUE"
+      warn_threshold: ":100"
+      crit_threshold: ":100"
+    183: ["RAW_VALUE", 20, 40] # SATA Downshift Count
+    184: ["RAW_VALUE", 20, 40] # End-to-End Error Detection Count
+    187: ["RAW_VALUE", 0, 10] # Uncorrectable Error Count
+    190: ["RAW_VALUE", 50, 60] # Temperature - Airflow Temperature (Case)
+    194: ["RAW_VALUE", 50, 60] # Temperature - Device Internal Temperature
+    197: ["RAW_VALUE", 0, 10] # Pending Sector Count
+    199: ["RAW_VALUE", 0, 10] # CRC Error Count
+    232: # Available Reserved Space
+      field: "VALUE"
+      warn_threshold: ":16"
+      crit_threshold: ":11"
+    233: # Media Wearout Indicator
+      field: "VALUE"
+      warn_threshold: ":16"
+      crit_threshold: ":6"
+    1024: ["VALUE", 0, 10] # ATA error count (custom)
+
+- model:
+  - "Marvell based SanDisk SSDs"
+  - "SanDisk SD6SB1M128G1022I"
+  - "SanDisk SD6SB1M256G1022I"
+  - "SanDisk SD6SB2M512G1022I"
+  - "SanDisk SD7UB2Q512G1022"
+  - "SanDisk SD7UB2Q512G1122"
+  attributes:
+    5: ["RAW_VALUE", 20, 40] # Re-allocated Sector Count
+    171: ["RAW_VALUE", 0, 10] # Program_Fail_Count
+    172: ["RAW_VALUE", 0, 10] # Erase_Fail_Count
+    187: ["RAW_VALUE", 0, 10] # Reported_Uncorrect
+    212: ["RAW_VALUE", 0, 10] # SATA_PHY_Error
+    230: ["RAW_VALUE", 8500, 9500] # Perc_Write_Erase_Count/Wear out
+    232: # Perc_Avail_Resrvd_Space
+      warn_threshold: ":16"
+      crit_threshold: ":11"
+    1024: ["VALUE", 0, 10] # ATA error count (custom)
+
+- model:
+  - "SAMSUNG MZ7GE240HMGR-00003"
+  - "SAMSUNG MZ7GE480HMGR-00003"
+  - "SAMSUNG MZ7GE960HMGR-00003"
+  attributes:
+    5: ["RAW_VALUE", 10, 20] # Re-allocated Sector Count
+    177: # Wear Leveling Count
+      field: "VALUE"
+      warn_threshold: ":16"
+      crit_threshold: ":11"
+    179: ["VALUE", 3500, 4000] # Used Reserved Block Count (Total)
+    180: # Unused Reserved Block Count (Total)
+      field: "VALUE"
+      warn_threshold: ":16"
+      crit_threshold: ":11"
+    181: ["RAW_VALUE", 0, 10] # Program Fail Count (Total)
+    182: ["RAW_VALUE", 0, 10] # Erase Fail Count (Total)
+    183: # Runtime Bad Count (Total)
+      field: "VALUE"
+      warn_threshold: ":20"
+      crit_threshold: ":10"
+    184: # End to End Error Data Path Error Count
+      field: "VALUE"
+      warn_threshold: ":95"
+      crit_threshold: ":90"
+    187: ["RAW_VALUE", 0, 10] # Uncorrectrable Error Count
+    190: ["RAW_VALUE", 60, 70] # Air Flow Temperature
+    195: ["RAW_VALUE", 0, 10] # ECC Error Rate
+    199: ["RAW_VALUE", 0, 10] # CRC Error Count
+    202: # SSD Mode Status
+      field: "VALUE"
+      warn_threshold: ":20"
+      crit_threshold: ":10"
+    1024: ["VALUE", 0, 10] # ATA error count (custom)
+
+- model:
+  - "Seagate Barracuda ES.2"
+  - "ST31000340NS"
+  attributes:
+    1: # Raw Read Error Rate
+      field: "VALUE"
+      warn_threshold: ":62"
+      crit_threshold: ":52"
+    3: # Spin Up Time
+      field: "VALUE"
+      warn_threshold: ":32"
+      crit_threshold: ":22"
+    5: ["VALUE", 20, 40] # Re-allocated Sector Count
+    10: ["RAW_VALUE", 0, 10] # Spin Retry Count
+    11: ["RAW_VALUE", 0, 10] # Calibration Retry Count
+    196: ["RAW_VALUE", 0, 10] # Reallocated Event Count
+    197: ["RAW_VALUE", 0, 10] # Current Pending Sector
+    198: ["RAW_VALUE", 0, 10] # Offline Uncorrectable
+    199: ["RAW_VALUE", 0, 10] # UDMA CRC Error Count
+    1024: ["VALUE", 0, 10] # ATA error count (custom)
+
+- model:
+  - "Seagate Constellation ES"
+  - "ST32000644NS"
+  attributes:
+    1: # Raw Read Error Rate
+      field: "VALUE"
+      warn_threshold: ":62"
+      crit_threshold: ":52"
+    3: # Spin Up Time
+      field: "VALUE"
+      warn_threshold: ":32"
+      crit_threshold: ":22"
+    5: ["VALUE", 20, 40] # Re-allocated Sector Count
+    10: ["RAW_VALUE", 0, 10] # Spin Retry Count
+    197: ["RAW_VALUE", 0, 10] # Current Pending Sector
+    198: ["RAW_VALUE", 0, 10] # Offline Uncorrectable
+    199: ["RAW_VALUE", 0, 10] # UDMA CRC Error Count
+    1024: ["VALUE", 0, 10] # ATA error count (custom)
+
+- model:
+  - "Seagate Constellation ES.2 1TB"
+  - "ST31000340NS"
+  attributes:
+    1: # Raw Read Error Rate
+      field: "VALUE"
+      warn_threshold: ":62"
+      crit_threshold: ":52"
+    3: # Spin Up Time
+      field: "VALUE"
+      warn_threshold: ":32"
+      crit_threshold: ":22"
+    5: ["VALUE", 20, 40] # Re-allocated Sector Count
+    10: ["RAW_VALUE", 0, 10] # Spin Retry Count
+    197: ["RAW_VALUE", 0, 10] # Current Pending Sector
+    198: ["RAW_VALUE", 0, 10] # Offline Uncorrectable
+    199: ["RAW_VALUE", 0, 10] # UDMA CRC Error Count
+    1024: ["VALUE", 0, 10] # ATA error count (custom)
+
+- model:
+  - "Seagate Constellation ES.2 500G"
+  - "ST3500320NS"
+  attributes:
+    1: # Raw Read Error Rate
+      field: "VALUE"
+      warn_threshold: ":62"
+      crit_threshold: ":52"
+    3: # Spin Up Time
+      field: "VALUE"
+      warn_threshold: ":32"
+      crit_threshold: ":22"
+    5: ["VALUE", 20, 40] # Re-allocated Sector Count
+    10: ["RAW_VALUE", 0, 10] # Spin Retry Count
+    197: ["RAW_VALUE", 0, 10] # Current Pending Sector
+    198: ["RAW_VALUE", 0, 10] # Offline Uncorrectable
+    199: ["RAW_VALUE", 0, 10] # UDMA CRC Error Count
+    1024: ["VALUE", 0, 10] # ATA error count (custom)
+
+- model:
+  - "Seagate Constellation ES.3 SATAIII 4TB Serie"
+  - "ST4000NM0033-9ZM170"
+  attributes:
+    5: ["RAW_VALUE", 20, 40] # Re-allocated Sector Count
+    184: # End-to-End Error Detection Count
+      field: "VALUE"
+      warn_threshold: ":96"
+      crit_threshold: ":91"
+    187: ["RAW_VALUE", 0, 10] # Uncorrectable Error Count
+    199: ["RAW_VALUE", 0, 10] # UDMA_CRC_Error_Count
+    232: # Available Reserved Space
+      field: "VALUE"
+      warn_threshold: ":16"
+      crit_threshold: ":11"
+    233: # Media Wearout Indicator
+      field: "VALUE"
+      warn_threshold: ":16"
+      crit_threshold: ":6"
+    1024: ["VALUE", 0, 10] # ATA error count (custom)
+
+- model:
+  - "Western Digital RE4"
+  - "Western Digital RE4 2TB"
+  - "Western Digital RE4 1TB"
+  - "Western Digital RE4 500G"
+  - "WDC WD2003FYYS-02W0B1"
+  - "WDC WD1003FBYX-01Y7B0"
+  - "WDC WD5003ABYX-01WERA1"
+  attributes:
+    1: # Raw Read Error Rate
+      field: "VALUE"
+      warn_threshold: ":62"
+      crit_threshold: ":52"
+    3: # Spin Up Time
+      field: "VALUE"
+      warn_threshold: ":32"
+      crit_threshold: ":22"
+    5: ["RAW_VALUE", 20, 40] # Re-allocated Sector Count
+    10: ["RAW_VALUE", 0, 10] # Spin Retry Count
+    11: ["RAW_VALUE", 0, 10] # Calibration Retry Count
+    196: ["RAW_VALUE", 0, 10] # Reallocated Event Count
+    197: ["RAW_VALUE", 0, 10] # Current Pending Sector
+    198: ["RAW_VALUE", 0, 10] # Offline Uncorrectable
+    199: ["RAW_VALUE", 0, 10] # UDMA CRC Error Count
+    1024: ["VALUE", 0, 10] # ATA error count (custom)
+
+- model:
+  - "Western Digital RE4-GP"
+  - "WDC WD2002FYPS-01U1B1"
+  attributes:
+    1: # Raw Read Error Rate
+      field: "VALUE"
+      warn_threshold: ":62"
+      crit_threshold: ":52"
+    3: # Spin Up Time
+      field: "VALUE"
+      warn_threshold: ":32"
+      crit_threshold: ":22"
+    5: ["RAW_VALUE", 20, 40] # Re-allocated Sector Count
+    10: ["RAW_VALUE", 0, 10] # Spin Retry Count
+    11: ["RAW_VALUE", 0, 10] # Calibration Retry Count
+    196: ["RAW_VALUE", 0, 10] # Reallocated Event Count
+    197: ["RAW_VALUE", 0, 10] # Current Pending Sector
+    198: ["RAW_VALUE", 0, 10] # Offline Uncorrectable
+    199: ["RAW_VALUE", 0, 10] # UDMA CRC Error Count
+    1024: ["VALUE", 0, 10] # ATA error count (custom)
+
+- model:
+  - "Western Digital Re"
+  - "WDC WD2000FYYZ-01UL1B0"
+  - "WDC WD2000FYYZ-01UL1B1"
+  - "WDC WD2000FYYZ-01UL1B2"
+  - "WDC WD3000FYYZ-01UL1B0"
+  - "WDC WD3000FYYZ-01UL1B1"
+  - "WDC WD3000FYYZ-01UL1B2"
+  - "WDC WD4000FYYZ-01UL1B0"
+  - "WDC WD4000FYYZ-01UL1B1"
+  - "WDC WD4000FYYZ-01UL1B2"
+  attributes:
+    1: # Raw Read Error Rate
+      field: "VALUE"
+      warn_threshold: ":62"
+      crit_threshold: ":52"
+    3: # Spin Up Time
+      field: "VALUE"
+      warn_threshold: ":32"
+      crit_threshold: ":22"
+    5: ["RAW_VALUE", 0, 40] # Re-allocated Sector Count
+    10: ["RAW_VALUE", 0, 10] # Spin Retry Count
+    11: ["RAW_VALUE", 0, 10] # Calibration Retry Count
+    196: ["RAW_VALUE", 0, 10] # Reallocated Event Count
+    197: ["RAW_VALUE", 0, 10] # Current Pending Sector
+    198: ["RAW_VALUE", 0, 10] # Offline Uncorrectable
+    199: ["RAW_VALUE", 0, 10] # UDMA CRC Error Count
+
+- model:
+  - "Western Digital Red (AF)"
+  - "WDC WD30EFRX-68EUZN0"
+  attributes:
+    1: # Raw Read Error Rate
+      field: "VALUE"
+      warn_threshold: ":62"
+      crit_threshold: ":52"
+    3: # Spin Up Time
+      field: "VALUE"
+      warn_threshold: ":32"
+      crit_threshold: ":22"
+    5: ["RAW_VALUE", 20, 40] # Re-allocated Sector Count
+    10: ["RAW_VALUE", 0, 10] # Spin Retry Count
+    11: ["RAW_VALUE", 0, 10] # Calibration Retry Count
+    196: ["RAW_VALUE", 0, 10] # Reallocated Event Count
+    197: ["RAW_VALUE", 0, 10] # Current Pending Sector
+    198: ["RAW_VALUE", 0, 10] # Offline Uncorrectable
+    199: ["RAW_VALUE", 0, 10] # UDMA CRC Error Count
+    1024: ["VALUE", 0, 10] # ATA error count (custom)
