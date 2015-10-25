@@ -58,9 +58,17 @@ class SMARTCheck(object):
 				self._database = []
 		return self._database
 
+	def exists_in_database(self):
+		for dev in self.database:
+			device_regexprs = dev['model'] if isinstance(dev['model'], list) else [dev['model']]
+			if any(re.match(r, self.information['device_model'], re.IGNORECASE) for r in device_regexprs):
+				return True
+		return False
+
 	def get_attributes_from_database(self, device_model):
 		for dev in self.database:
-			if re.match(dev['model'], device_model, re.IGNORECASE):
+			device_regexprs = dev['model'] if isinstance(dev['model'], list) else [dev['model']]
+			if any(re.match(r, device_model, re.IGNORECASE) for r in device_regexprs):
 				return dev['attributes']
 		return None
 
