@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-import json
-
+import yaml
 import re
 
 INFORMATION_SECTION_START = '=== START OF INFORMATION SECTION ==='
@@ -54,7 +53,7 @@ class SMARTCheck(object):
 		if self._database is None:
 			if self.db_path:
 				with open(self.db_path) as f:
-					self._database = json.load(f)
+					self._database = yaml.load(f)
 			else:
 				self._database = []
 		return self._database
@@ -137,36 +136,57 @@ class SMARTCheck(object):
 
 	def check_attributes(self):
 		device_model = self.information.get('device_model', '')
-		db_attrs = self.get_attributes_from_database(device_model)
+		device_db_attributes = self.get_attributes_from_database(device_model)
 
 		threshold_from = re.compile('^(\d+):$')
 		threshold_to = re.compile('^:(\d+)$')
+		threshold_from_to = re.compile('^(\d+):(\d+)$')
 
-		if not db_attrs:
+		if not device_db_attributes:
 			return {}
 
 		failed_attributes = {}
 
 		for attrid, name, flag, value, worst, tresh, type, updated, when_failed, raw_value in self.smart_data['attributes']:
-			if attrid in db_attrs:
-				min_check = None
-				max_check = None
+			attrid = int(attrid)
+			if attrid in device_db_attributes:
+				db_attrs = device_db_attributes[attrid]
 
-				value_field, min_value, max_value = tuple(db_attrs[attrid])
+				if isinstance(db_attrs, list):
+					value_field, min_value, max_value = tuple(device_db_attributes[int(attrid)])
 
-				if threshold_from.match(str(min_value)):
-					min_check = lambda i: i >= int(threshold_from.match(str(min_value)).group(1))
+					check_value = int(value if value_field == "VALUE" else raw_value)
+
+					if not (int(min_value) <= check_value <= int(max_value)):
+						failed_attributes[(attrid, name)] = ('CRITICAL', value_field, check_value)
+				elif isinstance(db_attrs, dict):
+					value_field = db_attrs.get('field', 'RAW_VALUE')
+					check_value = int(value if value_field == "VALUE" else raw_value)
+
+					min_value = db_attrs.get('min', None)
+					max_value = db_attrs.get('max', None)
+
+					if min_value is None and max_value is None:
+						for failure_type, threshold_key in [('WARNING', 'warn_threshold'), ('CRITICAL', 'crit_threshold')]:
+							if threshold_key not in db_attrs:
+								continue
+							v = db_attrs.get(threshold_key)
+
+							from_m = threshold_from.match(v)
+							to_m = threshold_to.match(v)
+							from_to_m = threshold_from_to.match(v)
+
+							if (from_m and check_value >= int(from_m.group(1))) or \
+								(to_m and check_value <= int(to_m.group(1))) or \
+								(from_to_m and (int(from_to_m.group(1)) <= check_value <= int(from_to_m.group(2)))):
+
+								failed_attributes[(attrid, name)] = (failure_type, value_field, check_value)
+					else:
+						if (min_value is not None and check_value >= int(min_value)) or \
+							(max_value is not None and check_value <= int(max_value)):
+							failed_attributes[(attrid, name)] = ('CRITICAL', value_field, check_value)
+
 				else:
-					min_check = lambda i: i >= int(min_value)
-
-				if threshold_to.match(str(max_value)):
-					max_check = lambda i: i <= int(threshold_to.match(str(max_value)).group(1))
-				else:
-					max_check = lambda i: i <= int(max_value)
-
-				check_value = int(value if value_field == "VALUE" else raw_value)
-
-				if not (min_check(check_value) and max_check(check_value)):
-					failed_attributes[(attrid, name)] = (value_field, check_value)
+					raise ValueError("Unknown attribute specification: %s" % db_attrs)
 
 		return failed_attributes

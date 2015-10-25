@@ -1,0 +1,18 @@
+# Vendor: Western Digital
+
+# Western Digital RE (2TB, 3TB, 4TB)
+- model: "^WDC WD[234]000FYYZ-01UL1B[012]$"
+  attributes:
+#    1:
+#      field: "VALUE"
+#      min: 999
+#      max: 999
+    1: ["VALUE", 52, 999] # Raw Read Error Rate
+    3: ["VALUE", 22, 999] # Spin Up Time
+    5: ["RAW_VALUE", 0, 20] # Re-allocated Sector Count
+    10: ["RAW_VALUE", 0, 10] # Spin retry count
+    11: ["RAW_VALUE", 0, 10] # calibration retry count
+    196: ["RAW_VALUE", 0, 10] # Reallocated Event Count
+    197: ["RAW_VALUE", 0, 10] # Current Pending Sector
+    198: ["RAW_VALUE", 0, 10] # Offline Uncorrectable
+    199: ["RAW_VALUE", 0, 10] # UDMA CRC Error Count

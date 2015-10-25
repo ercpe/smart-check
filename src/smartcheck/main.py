@@ -3,7 +3,7 @@ from argparse import ArgumentParser
 import os
 from smartcheck.check import SMARTCheck
 
-DEFAULT_DATA_FILE=os.path.join(os.path.dirname(__file__), 'disks.json')
+DEFAULT_DATA_FILE=os.path.join(os.path.dirname(__file__), 'disks.yaml')
 
 if __name__ == "__main__":
 	parser = ArgumentParser()
@@ -15,9 +15,9 @@ if __name__ == "__main__":
 	check = SMARTCheck(open(args.file, 'r'), args.data_file)
 
 	import pprint
-	pprint.pprint(check.information)
-	if not check.information:
-		import sys
-		sys.exit(1)
+	print(check.check_attributes())
+	#if not check.check_attributes():
+	#	import sys
+	#	sys.exit(1)
 	#pprint.pprint(check.smart_data)
 	#pprint.pprint(check.self_tests)

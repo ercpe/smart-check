@@ -1,0 +1,6 @@
+- model: "^WDC WD[234]000FYYZ-01UL1B[012]$"
+  attributes:
+    4:
+      warn_threshold: "1:3"
+    5:
+      warn_threshold: "10:20"

@@ -1,0 +1,6 @@
+- model: "^WDC WD[234]000FYYZ-01UL1B[012]$"
+  attributes:
+    9:
+      field: "RAW_VALUE"
+      warn_threshold: "0:"
+      crit_threshold: "0:"
