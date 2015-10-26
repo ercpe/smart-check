@@ -1,3 +1,3 @@
-- model: "^WDC WD[234]000FYYZ-01UL1B[012]$"
+- model: "^ST2000NM0033-9ZM175$"
   attributes:
     9: ["RAW_VALUE", 0, 10]
