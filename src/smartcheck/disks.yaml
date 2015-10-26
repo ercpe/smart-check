@@ -47,7 +47,7 @@
       crit_threshold: ":6"
     1024: ["VALUE", 0, 10] # ATA error count (custom)
 
-- model:
+- model: # HGST Ultrastar He Series
   - "HGST HUH728080ALE600"
   - "HGST HUH728080ALE601"
   - "HGST HUH728080ALE604"

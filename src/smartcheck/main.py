@@ -15,9 +15,12 @@ if __name__ == "__main__":
 	check = SMARTCheck(open(args.file, 'r'), args.data_file)
 
 	import pprint
-	print(check.check_attributes())
+	#print(check.check_attributes())
+	print(check.device_model, check.exists_in_database())
+
+	#pprint.pprint(check.smart_data)
+	#pprint.pprint(check.self_tests)
+
 	#if not check.check_attributes():
 	#	import sys
 	#	sys.exit(1)
-	#pprint.pprint(check.smart_data)
-	#pprint.pprint(check.self_tests)

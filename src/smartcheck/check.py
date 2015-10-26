@@ -59,10 +59,14 @@ class SMARTCheck(object):
 				self._database = []
 		return self._database
 
+	@property
+	def device_model(self):
+		return self.information['device_model']
+
 	def exists_in_database(self):
 		for dev in self.database:
 			device_regexprs = dev['model'] if isinstance(dev['model'], list) else [dev['model']]
-			if any(re.match(r, self.information['device_model'], re.IGNORECASE) for r in device_regexprs):
+			if any(re.match(r, self.device_model, re.IGNORECASE) for r in device_regexprs):
 				return True
 		return False
 
@@ -145,7 +149,7 @@ class SMARTCheck(object):
 		return not any([x[2] not in ok_test_results for x in self.self_tests['test_results']])
 
 	def check_attributes(self):
-		device_model = self.information.get('device_model', '')
+		device_model = self.device_model
 		device_db_attributes = self.get_attributes_from_database(device_model)
 
 		threshold_from = re.compile('^(\d+):$')
