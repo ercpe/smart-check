@@ -15,36 +15,42 @@ if __name__ == "__main__":
 
 	args = parser.parse_args()
 
-	stream = None
-	if args.file:
-		if args.file == '-':
-			stream = sys.stdin
-		else:
-			stream = open(args.file, 'r')
+	try:
+		stream = None
+		if args.file:
+			if args.file == '-':
+				stream = sys.stdin
+			else:
+				stream = open(args.file, 'r')
 
-	check = SMARTCheck(stream, args.data_file)
+		check = SMARTCheck(stream, args.data_file)
 
-	exit_code = 0
-	msg = ""
+		exit_code = 0
+		msg = ""
 
-	attribute_errors = check.check_attributes()
+		attribute_errors = check.check_attributes()
 
-	if args.exclude_notices:
-		for k in [x for x, y in attribute_errors.items() if y.level == AttributeWarning.Notice]:
-			del attribute_errors[k]
+		if args.exclude_notices:
+			for k in [x for x, y in attribute_errors.items() if y.level == AttributeWarning.Notice]:
+				del attribute_errors[k]
 
-	if any((ae.level == AttributeWarning.Warning for ae in attribute_errors.values())):
-		msg = ', '.join([ae.long_message if args.verbose else ae.short_message for ae in attribute_errors.values()])
-		exit_code = 1
-	if any((ae.level == AttributeWarning.Critical for ae in attribute_errors.values())):
-		msg = ', '.join([ae.long_message if args.verbose else ae.short_message for ae in attribute_errors.values()])
-		exit_code = 2
-	if not check.check_tests():
-		msg = (msg + '; S.M.A.R.T. self test reported an error').lstrip(';').strip()
-		exit_code = 2
+		if attribute_errors:
+			msg = ', '.join([ae.long_message if args.verbose else ae.short_message for ae in attribute_errors.values()])
 
-	if not exit_code:
-		msg = "S.M.A.R.T. data OK"
+			if any((ae.level == AttributeWarning.Warning for ae in attribute_errors.values())):
+				exit_code = 1
+			if any((ae.level == AttributeWarning.Critical for ae in attribute_errors.values())):
+				exit_code = 2
 
-	print(msg)
-	sys.exit(exit_code)
+		if not check.check_tests():
+			msg = (msg + '; S.M.A.R.T. self test reported an error').lstrip(';').strip()
+			exit_code = 2
+
+		if not exit_code:
+			msg = "S.M.A.R.T. data OK"
+
+		print("%s: %s" % (check.device_model, msg))
+		sys.exit(exit_code)
+	except Exception as ex:
+		print(ex)
+		sys.exit(3)
