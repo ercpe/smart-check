@@ -35,12 +35,9 @@ class AttributeWarning(object):
 	Warning = 'WARNING'
 	Critical = 'CRITICAL'
 
-	FieldRawValue = 'RAW_VALUE'
-	FieldValue = 'VALUE'
-
-	def __init__(self, level=None, field=None, value=None, description=None):
+	def __init__(self, level=None, attribute_name=None, value=None, description=None):
 		self.level = level
-		self.field = field
+		self.field = attribute_name
 		self.value = value
 		self.description = description
 
@@ -208,64 +205,65 @@ class SMARTCheck(object):
 		failed_attributes = {}
 
 		for attrid, name, flag, value, worst, tresh, type, updated, when_failed, raw_value in self.smart_data['attributes']:
+			attrid = int(attrid)
 			attr_name = (name or '').lower()
 			int_value = toint(value)
 			int_raw_value = toint(raw_value)
 
 			# these tests are take from gsmartcontrol (storage_property_descr.cpp) and check for known pre-fail attributes
-			if attr_name == 'reallocated_sector_count' and int_raw_value:
+			if attr_name == 'reallocated_sector_count' and int_raw_value > 0:
 				failed_attributes[(attrid, name)] = AttributeWarning(AttributeWarning.Notice,
-																	 AttributeWarning.FieldRawValue,
+																	 name,
 																	 raw_value,
 																	 "The drive has a non-zero Raw value, but there is no SMART warning yet. " +
 																	 "This could be an indication of future failures and/or potential data loss in bad sectors.")
-			elif attr_name == 'spin_up_retry_count' and int_raw_value:
+			elif attr_name == 'spin_up_retry_count' and int_raw_value > 0:
 				failed_attributes[(attrid, name)] = AttributeWarning(AttributeWarning.Notice,
-																	 AttributeWarning.FieldRawValue,
+																	 name,
 																	 raw_value,
 																	 "The drive has a non-zero Raw value, but there is no SMART warning yet. " +
 																	 "Your drive may have problems spinning up, which could lead to a complete mechanical failure.")
-			elif attr_name ==  "soft_read_error_rate" and int_raw_value:
+			elif attr_name ==  "soft_read_error_rate" and int_raw_value > 0:
 				failed_attributes[(attrid, name)] = AttributeWarning(AttributeWarning.Notice,
-																	 AttributeWarning.FieldRawValue,
+																	 name,
 																	 raw_value,
 																	 "The drive has a non-zero Raw value, but there is no SMART warning yet. " +
 																	 "This could be an indication of future failures and/or potential data loss in bad sectors.")
-			elif attr_name == "temperature_celsius" and (50 <= int_raw_value <= 120):
+			elif attr_name == "temperature_celsius" and (50 <= int_value <= 120):
 				# Temperature (for some it may be 10xTemp, so limit the upper bound.)
 				failed_attributes[(attrid, name)] = AttributeWarning(AttributeWarning.Notice,
-																	 AttributeWarning.FieldRawValue,
-																	 raw_value,
+																	 name,
+																	 int_value,
 																	 "The temperature of the drive is higher than 50 degrees Celsius. " +
 																	 "This may shorten its lifespan and cause damage under severe load.")
-			elif attr_name == "temperature_celsius_x10" and int_raw_value > 500:
+			elif attr_name == "temperature_celsius_x10" and int_value > 500:
 				# Temperature (for some it may be 10xTemp, so limit the upper bound.)
 				failed_attributes[(attrid, name)] = AttributeWarning(AttributeWarning.Notice,
-																	 AttributeWarning.FieldRawValue,
-																	 raw_value,
+																	 name,
+																	 int_value,
 																	 "The temperature of the drive is higher than 50 degrees Celsius. " +
 																	 "This may shorten its lifespan and cause damage under severe load.")
-			elif attr_name == "reallocation_event_count" and int_raw_value:
+			elif attr_name == "reallocation_event_count" and int_raw_value > 0:
 				failed_attributes[(attrid, name)] = AttributeWarning(AttributeWarning.Notice,
-																	 AttributeWarning.FieldRawValue,
+																	 name,
 																	 raw_value,
 																	 "The drive has a non-zero Raw value, but there is no SMART warning yet. " +
 																	 "This could be an indication of future failures and/or potential data loss in bad sectors.")
-			elif attr_name in ("current_pending_sector_count", "total_pending_sectors") and int_raw_value:
+			elif attr_name in ("current_pending_sector_count", "total_pending_sectors") and int_raw_value > 0:
 				failed_attributes[(attrid, name)] = AttributeWarning(AttributeWarning.Notice,
-																	 AttributeWarning.FieldRawValue,
+																	 name,
 																	 raw_value,
 																	 "The drive has a non-zero Raw value, but there is no SMART warning yet. " +
 																	 "This could be an indication of future failures and/or potential data loss in bad sectors.")
-			elif attr_name in ("offline_uncorrectable", "total_offline_uncorrectable") and int_raw_value:
+			elif attr_name in ("offline_uncorrectable", "total_offline_uncorrectable") and int_raw_value > 0:
 				failed_attributes[(attrid, name)] = AttributeWarning(AttributeWarning.Notice,
-																	 AttributeWarning.FieldRawValue,
+																	 name,
 																	 raw_value,
 																	 "The drive has a non-zero Raw value, but there is no SMART warning yet. " +
 																	 "This could be an indication of future failures and/or potential data loss in bad sectors.")
 			elif attr_name == "ssd_life_left" and int_value < 50:
 				failed_attributes[(attrid, name)] = AttributeWarning(AttributeWarning.Notice,
-																	 AttributeWarning.FieldRawValue,
+																	 name,
 																	 raw_value,
 																	 "The drive has less than half of its life left.")
 
@@ -289,13 +287,15 @@ class SMARTCheck(object):
 				if isinstance(db_attrs, list):
 					value_field, min_value, max_value = tuple(device_db_attributes[int(attrid)])
 
-					check_value = int(value if value_field == "VALUE" else raw_value)
+					check_value = value if value_field == "VALUE" else raw_value
+					check_value = int(check_value or -1)
 
 					if not (int(min_value) <= check_value <= int(max_value)):
-						failed_attributes[(attrid, name)] = AttributeWarning(AttributeWarning.Critical, value_field, check_value)
+						failed_attributes[(attrid, name)] = AttributeWarning(AttributeWarning.Critical, name, check_value)
 				elif isinstance(db_attrs, dict):
 					value_field = db_attrs.get('field', 'RAW_VALUE')
-					check_value = int(value if value_field == "VALUE" else raw_value)
+					check_value = value if value_field == "VALUE" else raw_value
+					check_value = int(check_value or -1)
 
 					min_value = db_attrs.get('min', None)
 					max_value = db_attrs.get('max', None)
@@ -314,11 +314,11 @@ class SMARTCheck(object):
 								(to_m and check_value <= int(to_m.group(1))) or \
 								(from_to_m and (int(from_to_m.group(1)) <= check_value <= int(from_to_m.group(2)))):
 
-								failed_attributes[(attrid, name)] = AttributeWarning(failure_type, value_field, check_value)
+								failed_attributes[(attrid, name)] = AttributeWarning(failure_type, name, check_value)
 					else:
 						if (min_value is not None and check_value >= int(min_value)) or \
 							(max_value is not None and check_value <= int(max_value)):
-							failed_attributes[(attrid, name)] = AttributeWarning(AttributeWarning.Critical, value_field, check_value)
+							failed_attributes[(attrid, name)] = AttributeWarning(AttributeWarning.Critical, name, check_value)
 
 				else:
 					raise ValueError("Unknown attribute specification: %s" % db_attrs)
