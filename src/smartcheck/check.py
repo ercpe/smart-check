@@ -144,7 +144,8 @@ class SMARTCheck(object):
 	def check_tests(self):
 		ok_test_results = [
 			'Completed without error',
-			'Interrupted (host reset)' # reboot during self test
+			'Interrupted (host reset)', # reboot during self test
+			'Aborted by host'
 		]
 		return not any([x[2] not in ok_test_results for x in self.self_tests['test_results']])
 
