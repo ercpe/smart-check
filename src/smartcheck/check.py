@@ -69,8 +69,13 @@ class AttributeWarning(object):
 
 class SMARTCheck(object):
 
-	def __init__(self, file_or_stream, db_path=None):
-		self.raw = file_or_stream.read()
+	def __init__(self, file_or_string, db_path=None):
+		if hasattr(file_or_string, 'read'):
+			self.raw = file_or_string.read()
+		elif isinstance(file_or_string, str):
+			self.raw = file_or_string
+		else:
+			raise Exception("Unknown type: %s" % type(file_or_string))
 		self.parsed_sections = None
 		self.db_path = db_path
 		self._database = None
@@ -108,18 +113,15 @@ class SMARTCheck(object):
 		return self.information['device_model']
 
 	def exists_in_database(self):
-		for dev in self.database:
-			device_regexprs = dev['model'] if isinstance(dev['model'], list) else [dev['model']]
-			if any(re.match(r, self.device_model, re.IGNORECASE) for r in device_regexprs):
-				return True
-		return False
+		return self.get_attributes_from_database(self.device_model) is not None
 
 	def get_attributes_from_database(self, device_model):
 		for dev in self.database:
 			device_regexprs = dev['model'] if isinstance(dev['model'], list) else [dev['model']]
 			if any(re.match(r, device_model, re.IGNORECASE) for r in device_regexprs):
-				logging.debug("One of %s matches '%s'" % (device_regexprs, device_model))
+				logging.debug("Device exists in database (one of %s matches %s)" % (device_regexprs, self.device_model))
 				return dev['attributes']
+		logging.debug("Device does not exist in database")
 		return None
 
 	def parse(self):
@@ -267,6 +269,7 @@ class SMARTCheck(object):
 																	 raw_value,
 																	 "The drive has less than half of its life left.")
 
+		logging.debug("Failed generic attributes: %s" % (failed_attributes, ))
 		return failed_attributes
 
 	def check_device_attributes(self):
@@ -291,6 +294,7 @@ class SMARTCheck(object):
 					check_value = int(check_value or -1)
 
 					if not (int(min_value) <= check_value <= int(max_value)):
+						logging.info("Attribute %s (%s) failed: not %s <= %s <= %s" % (attrid, name, min_value, check_value, max_value))
 						failed_attributes[(attrid, name)] = AttributeWarning(AttributeWarning.Critical, name, check_value)
 				elif isinstance(db_attrs, dict):
 					value_field = db_attrs.get('field', 'RAW_VALUE')
@@ -314,10 +318,12 @@ class SMARTCheck(object):
 								(to_m and check_value <= int(to_m.group(1))) or \
 								(from_to_m and (int(from_to_m.group(1)) <= check_value <= int(from_to_m.group(2)))):
 
+								logging.info("Attribute %s (%s) failed with %s: not within treshold %s" % (attrid, name, failure_type, v))
 								failed_attributes[(attrid, name)] = AttributeWarning(failure_type, name, check_value)
 					else:
 						if (min_value is not None and check_value >= int(min_value)) or \
 							(max_value is not None and check_value <= int(max_value)):
+							logging.info("Attribute %s (%s) failed: not %s >= %s <= %s" % (attrid, name, min_value, check_value, max_value))
 							failed_attributes[(attrid, name)] = AttributeWarning(AttributeWarning.Critical, name, check_value)
 
 				else:

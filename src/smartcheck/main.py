@@ -1,20 +1,56 @@
 # -*- coding: utf-8 -*-
 from argparse import ArgumentParser
 import os
+import shlex
 import sys
+import logging
+import subprocess
 from smartcheck.check import SMARTCheck, AttributeWarning
 
-DEFAULT_DATA_FILE=os.path.join(os.path.dirname(__file__), 'disks.yaml')
+DEFAULT_DISKS_FILE=os.path.join(os.path.dirname(__file__), 'disks.yaml')
+
+def execute_smartctl(drive, interface=None, sudo=None, smartctl_path=None, smartctl_args=''):
+	command_line = "%s %s %s %s -a %s" % (
+		"sudo" if sudo else '',
+		smartctl_path,
+		'-d %s' % interface if interface else '',
+		smartctl_args,
+		drive
+	)
+	logging.debug("Executing smartctl command: %s" % command_line)
+
+	cmd = shlex.split(command_line)
+	process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, env={'LC_ALL': 'C'})
+	output = process.communicate()[0]
+	if process.returncode:
+		raise Exception("smartctl failed with status code %s" % process.returncode)
+	return output
 
 if __name__ == "__main__":
 	parser = ArgumentParser()
-	parser.add_argument('--data-file', default=DEFAULT_DATA_FILE)
+
+	parser.add_argument('-i', '--interface', help="The smartctl interface specification (passed to smartctl's -d parameter")
+	parser.add_argument('drive', type=str, nargs='?', help="The device as passed to smartctl's positional argument")
+	parser.add_argument('-s', '--sudo', help="Use sudo to execute smartctl", action='store_true', default=False)
+	parser.add_argument('--smartctl-path', default="/usr/sbin/smartctl", help='Path to smartctl (default: %(defaults)s)')
+	parser.add_argument('-a', '--smartctl-args', default='-n standby', help="Other arguments passed to smartctl (default: %(default)s)")
+
+	parser.add_argument('--disks-file', default=DEFAULT_DISKS_FILE)
 	parser.add_argument('-f', '--file', help="Use S.M.A.R.T. report from file instead of calling smartctl (Use - to read from stdin)")
 	parser.add_argument('-x', '--exclude-notices', help='Report NOTICE warnings (default: %(default)s)', action='store_true', default=False)
 	parser.add_argument('-v', '--verbose', help='Verbose messages', action='store_true', default=False)
+	parser.add_argument('--debug', help="Print debug messages", action="store_true", default=False)
 
 	args = parser.parse_args()
 
+	if args.file and any([args.interface, args.drive]):
+		parser.error('-f/--file cannot be used with a device and/or -i/--interface')
+
+	if args.debug:
+		logging.basicConfig(level=logging.DEBUG, format='%(levelname)-8s %(message)s')
+
+	exit_code = 0
+	msg = ""
 	try:
 		stream = None
 		if args.file:
@@ -22,12 +58,10 @@ if __name__ == "__main__":
 				stream = sys.stdin
 			else:
 				stream = open(args.file, 'r')
+		else:
+			stream = execute_smartctl(args.drive, args.interface, args.sudo, args.smartctl_path, args.smartctl_args)
 
-		check = SMARTCheck(stream, args.data_file)
-
-		exit_code = 0
-		msg = ""
-
+		check = SMARTCheck(stream, args.disks_file)
 		attribute_errors = check.check_attributes()
 
 		if args.exclude_notices:
@@ -49,8 +83,12 @@ if __name__ == "__main__":
 		if not exit_code:
 			msg = "S.M.A.R.T. data OK"
 
-		print("%s: %s" % (check.device_model, msg))
-		sys.exit(exit_code)
+		msg = "%s: %s" % (check.device_model, msg)
 	except Exception as ex:
-		print(ex)
-		sys.exit(3)
+		msg = "Plugin failed: %s" % ex
+		if args.debug:
+			logging.exception("Plugin failed")
+		exit_code = 3
+
+	print(msg)
+	sys.exit(exit_code)
