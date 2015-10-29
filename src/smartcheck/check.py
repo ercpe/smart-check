@@ -207,6 +207,7 @@ class SMARTCheck(object):
 		failed_attributes = {}
 
 		for attrid, name, flag, value, worst, tresh, type, updated, when_failed, raw_value in self.smart_data['attributes']:
+			logging.debug("Attribute %s (%s): value=%s, raw value=%s" % (attrid, name, value, raw_value))
 			attrid = int(attrid)
 			attr_name = (name or '').lower()
 			int_value = toint(value)
@@ -231,20 +232,21 @@ class SMARTCheck(object):
 																	 raw_value,
 																	 "The drive has a non-zero Raw value, but there is no SMART warning yet. " +
 																	 "This could be an indication of future failures and/or potential data loss in bad sectors.")
-			elif attr_name == "temperature_celsius" and (50 <= int_value <= 120):
-				# Temperature (for some it may be 10xTemp, so limit the upper bound.)
-				failed_attributes[(attrid, name)] = AttributeWarning(AttributeWarning.Notice,
-																	 name,
-																	 int_value,
-																	 "The temperature of the drive is higher than 50 degrees Celsius. " +
-																	 "This may shorten its lifespan and cause damage under severe load.")
-			elif attr_name == "temperature_celsius_x10" and int_value > 500:
-				# Temperature (for some it may be 10xTemp, so limit the upper bound.)
-				failed_attributes[(attrid, name)] = AttributeWarning(AttributeWarning.Notice,
-																	 name,
-																	 int_value,
-																	 "The temperature of the drive is higher than 50 degrees Celsius. " +
-																	 "This may shorten its lifespan and cause damage under severe load.")
+			elif attr_name in ("temperature_celsius", "temperature_celsius_x10"):
+				if 50 <= int_raw_value <= 120:
+					# Temperature (for some it may be 10xTemp, so limit the upper bound.)
+					failed_attributes[(attrid, name)] = AttributeWarning(AttributeWarning.Notice,
+																		 name,
+																		 int_value,
+																		 "The temperature of the drive is higher than 50 degrees Celsius. " +
+																		 "This may shorten its lifespan and cause damage under severe load.")
+				elif int_raw_value > 500:
+					# Temperature (for some it may be 10xTemp, so limit the upper bound.)
+					failed_attributes[(attrid, name)] = AttributeWarning(AttributeWarning.Notice,
+																		 name,
+																		 int_value,
+																		 "The temperature of the drive is higher than 50 degrees Celsius. " +
+																		 "This may shorten its lifespan and cause damage under severe load.")
 			elif attr_name == "reallocation_event_count" and int_raw_value > 0:
 				failed_attributes[(attrid, name)] = AttributeWarning(AttributeWarning.Notice,
 																	 name,
