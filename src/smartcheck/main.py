@@ -29,15 +29,18 @@ def execute_smartctl(drive, interface=None, sudo=None, smartctl_path=None, smart
 if __name__ == "__main__":
 	parser = ArgumentParser()
 
-	parser.add_argument('-i', '--interface', help="The smartctl interface specification (passed to smartctl's -d parameter")
-	parser.add_argument('drive', type=str, nargs='?', help="The device as passed to smartctl's positional argument")
+	parser.add_argument('--disks-file', default=DEFAULT_DISKS_FILE)
+
 	parser.add_argument('-s', '--sudo', help="Use sudo to execute smartctl", action='store_true', default=False)
-	parser.add_argument('--smartctl-path', default="/usr/sbin/smartctl", help='Path to smartctl (default: %(defaults)s)')
+
+	parser.add_argument('--smartctl-path', default="/usr/sbin/smartctl", help='Path to smartctl (default: %(default)s)')
 	parser.add_argument('-a', '--smartctl-args', default='-n standby', help="Other arguments passed to smartctl (default: %(default)s)")
 
-	parser.add_argument('--disks-file', default=DEFAULT_DISKS_FILE)
+	parser.add_argument('-i', '--interface', help="The smartctl interface specification (passed to smartctl's -d parameter")
+	parser.add_argument('drive', type=str, nargs='?', help="The device as passed to smartctl's positional argument")
 	parser.add_argument('-f', '--file', help="Use S.M.A.R.T. report from file instead of calling smartctl (Use - to read from stdin)")
-	parser.add_argument('-x', '--exclude-notices', help='Report NOTICE warnings (default: %(default)s)', action='store_true', default=False)
+
+	parser.add_argument('-x', '--exclude-notices', help='Do not report NOTICE warnings (default: %(default)s)', action='store_true', default=False)
 	parser.add_argument('-v', '--verbose', help='Verbose messages', action='store_true', default=False)
 	parser.add_argument('--debug', help="Print debug messages", action="store_true", default=False)
 
