@@ -153,6 +153,7 @@ class SMARTCheck(object):
 
 	def parse_data_section(self, s):
 		if DATA_SECTION_START not in s:
+			logging.info("No data section found")
 			return {}
 
 		start = s.index(DATA_SECTION_START)
@@ -214,7 +215,7 @@ class SMARTCheck(object):
 			int_raw_value = toint(raw_value)
 
 			# these tests are take from gsmartcontrol (storage_property_descr.cpp) and check for known pre-fail attributes
-			if attr_name == 'reallocated_sector_count' and int_raw_value > 0:
+			if attr_name in ('reallocated_sector_count', 'reallocated_sector_ct') and int_raw_value > 0:
 				failed_attributes[(attrid, name)] = AttributeWarning(AttributeWarning.Notice,
 																	 name,
 																	 raw_value,
@@ -226,7 +227,7 @@ class SMARTCheck(object):
 																	 raw_value,
 																	 "The drive has a non-zero Raw value, but there is no SMART warning yet. " +
 																	 "Your drive may have problems spinning up, which could lead to a complete mechanical failure.")
-			elif attr_name ==  "soft_read_error_rate" and int_raw_value > 0:
+			elif attr_name == "soft_read_error_rate" and int_raw_value > 0:
 				failed_attributes[(attrid, name)] = AttributeWarning(AttributeWarning.Notice,
 																	 name,
 																	 raw_value,
@@ -237,14 +238,14 @@ class SMARTCheck(object):
 					# Temperature (for some it may be 10xTemp, so limit the upper bound.)
 					failed_attributes[(attrid, name)] = AttributeWarning(AttributeWarning.Notice,
 																		 name,
-																		 int_value,
+																		 int_raw_value,
 																		 "The temperature of the drive is higher than 50 degrees Celsius. " +
 																		 "This may shorten its lifespan and cause damage under severe load.")
 				elif int_raw_value > 500:
 					# Temperature (for some it may be 10xTemp, so limit the upper bound.)
 					failed_attributes[(attrid, name)] = AttributeWarning(AttributeWarning.Notice,
 																		 name,
-																		 int_value,
+																		 int_raw_value,
 																		 "The temperature of the drive is higher than 50 degrees Celsius. " +
 																		 "This may shorten its lifespan and cause damage under severe load.")
 			elif attr_name == "reallocation_event_count" and int_raw_value > 0:
@@ -253,7 +254,7 @@ class SMARTCheck(object):
 																	 raw_value,
 																	 "The drive has a non-zero Raw value, but there is no SMART warning yet. " +
 																	 "This could be an indication of future failures and/or potential data loss in bad sectors.")
-			elif attr_name in ("current_pending_sector_count", "total_pending_sectors") and int_raw_value > 0:
+			elif attr_name in ("current_pending_sector", "current_pending_sector_count", "total_pending_sectors") and int_raw_value > 0:
 				failed_attributes[(attrid, name)] = AttributeWarning(AttributeWarning.Notice,
 																	 name,
 																	 raw_value,

@@ -71,3 +71,72 @@ class CheckTest(unittest.TestCase):
 			self.assertTrue(check.check_tests())
 			self.assertDictEqual(check.check_attributes(), expected_attributes)
 			self.assertFalse(check.check())
+
+	def test_generic_attributes(self):
+		base = """=== START OF INFORMATION SECTION ===
+Model Family:     Seagate Barracuda 7200.14 (AF)
+Device Model:     ST3000DM001-1CH167
+Serial Number:    Z1F220RJ
+
+=== START OF READ SMART DATA SECTION ===
+SMART Attributes Data Structure revision number: 1
+Vendor Specific SMART Attributes with Thresholds:
+ID# ATTRIBUTE_NAME          FLAG     VALUE WORST THRESH TYPE      UPDATED  WHEN_FAILED RAW_VALUE
+"""
+		for attr_id, attr_name in [
+			('5', "Reallocated_Sector_Ct"),
+			('197', "current_pending_sector"),
+			('197', "current_pending_sector_count"),
+			('197', "total_pending_sectors"),
+			('0', 'spin_up_retry_count'),
+			('0', 'soft_read_error_rate'),
+			('0', 'Reallocation_Event_Count'),
+			('0', 'ssd_life_left'),
+		]:
+			s = base + "%s %s 0x000f   001   000   000    Pre-fail  Always       -       1" % (
+				attr_id.rjust(3), attr_name.ljust(23)
+			)
+			check = SMARTCheck(s, db_path)
+			failed_attributes = check.check_generic_attributes()
+			assert len(failed_attributes) == 1
+			(failed_id, failed_name), warning = failed_attributes.items()[0]
+			assert int(failed_id) == int(attr_id)
+			assert warning.level == AttributeWarning.Notice
+			assert warning.value == '1'
+			self.assertTrue(check.check_tests())
+			self.assertFalse(check.check())
+
+	def test_generic_temperature_attribute(self):
+		base = """=== START OF INFORMATION SECTION ===
+Model Family:     Seagate Barracuda 7200.14 (AF)
+Device Model:     ST3000DM001-1CH167
+Serial Number:    Z1F220RJ
+
+=== START OF READ SMART DATA SECTION ===
+SMART Attributes Data Structure revision number: 1
+Vendor Specific SMART Attributes with Thresholds:
+ID# ATTRIBUTE_NAME          FLAG     VALUE WORST THRESH TYPE      UPDATED  WHEN_FAILED RAW_VALUE
+"""
+		for attr_id, attr_name, attr_value, notice_expected in [
+			('0', 'temperature_celsius', 1, False), # too low
+			('0', 'temperature_celsius', 51, True), # within range
+			('0', 'temperature_celsius', 130, False), # out of range
+			('0', 'temperature_celsius_x10', 1, False), # too low
+			('0', 'temperature_celsius_x10', 501, True), # within range
+		]:
+			s = base + "%s %s 0x000f   %s   000   000    Pre-fail  Always       -       %s" % (
+				attr_id.rjust(3), attr_name.ljust(23), str(attr_value).zfill(3), attr_value
+			)
+			check = SMARTCheck(s, db_path)
+			failed_attributes = check.check_generic_attributes()
+			if notice_expected:
+				assert len(failed_attributes) == 1
+				(failed_id, failed_name), warning = failed_attributes.items()[0]
+				assert int(failed_id) == int(attr_id)
+				assert warning.level == AttributeWarning.Notice
+				assert warning.value == attr_value
+				self.assertFalse(check.check())
+			else:
+				assert len(failed_attributes) == 0
+			self.assertTrue(check.check_tests())
+
