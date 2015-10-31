@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-from StringIO import StringIO
-
 import unittest
 import os
 from smartcheck.check import SMARTCheck, AttributeWarning
