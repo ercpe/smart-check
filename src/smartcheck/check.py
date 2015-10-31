@@ -185,8 +185,8 @@ class SMARTCheck(object):
 			'test_results': TEST_RESULT_RE.findall(tests_text)
 		}
 
-	def check(self):
-		return len(self.check_attributes()) == 0 and self.check_tests()
+	def check(self, ignore_attributes=[]):
+		return len(self.check_attributes(ignore_attributes)) == 0 and self.check_tests()
 
 	def check_tests(self):
 		ok_test_results = [
@@ -196,11 +196,22 @@ class SMARTCheck(object):
 		]
 		return not any([x[2] not in ok_test_results for x in self.self_tests['test_results']])
 
-	def check_attributes(self):
+	def check_attributes(self, ignore_attributes=[]):
 		failed_attributes = self.check_generic_attributes()
 
 		if self.exists_in_database():
 			failed_attributes.update(self.check_device_attributes())
+
+		# remove every AttributeWarning from failed_attributes based on ignore_attributes
+		for attr_id_or_name in ignore_attributes or []:
+			del_keys = []
+			if isinstance(attr_id_or_name, int) or attr_id_or_name.isdigit():
+				del_keys = [k for k in failed_attributes.keys() if k[0] == int(attr_id_or_name)]
+			else:
+				del_keys = [k for k in failed_attributes.keys() if k[1] == attr_id_or_name]
+
+			for x in del_keys:
+				del failed_attributes[x]
 
 		return failed_attributes
 

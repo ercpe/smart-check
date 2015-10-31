@@ -140,3 +140,13 @@ ID# ATTRIBUTE_NAME          FLAG     VALUE WORST THRESH TYPE      UPDATED  WHEN_
 				assert len(failed_attributes) == 0
 			self.assertTrue(check.check_tests())
 
+	def test_ignore_attributes(self):
+		check = SMARTCheck(open(os.path.join(samples_path, 'seagate-barracuda-broken1.txt')))
+
+		for ignore_value in (198, '198', 'Offline_Uncorrectable'):
+			failed_attributes = check.check_attributes(ignore_attributes=[ignore_value])
+			assert len(failed_attributes) == 1
+			(failed_id, failed_name), failed_attribute = failed_attributes.items()[0]
+			assert failed_id == 197
+			assert failed_name == "Current_Pending_Sector"
+			assert int(failed_attribute.value) == 24
