@@ -131,6 +131,10 @@ class SMARTCheck(object):
 			'self_tests': self.parse_tests_section(self.raw),
 		}
 
+	@property
+	def data_parsed(self):
+		return 'attributes' in self.smart_data
+
 	def parse_information_section(self, s):
 		if INFORMATION_SECTION_START not in s:
 			return {}

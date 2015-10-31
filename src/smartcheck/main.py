@@ -66,28 +66,33 @@ if __name__ == "__main__":
 			stream = execute_smartctl(args.drive, args.interface, args.sudo, args.smartctl_path, args.smartctl_args)
 
 		check = SMARTCheck(stream, args.disks_file)
-		attribute_errors = check.check_attributes()
 
-		if args.exclude_notices:
-			for k in [x for x, y in attribute_errors.items() if y.level == AttributeWarning.Notice]:
-				del attribute_errors[k]
+		if check.data_parsed:
+			attribute_errors = check.check_attributes()
 
-		if attribute_errors:
-			msg = ', '.join([ae.long_message if args.verbose else ae.short_message for ae in attribute_errors.values()])
+			if args.exclude_notices:
+				for k in [x for x, y in attribute_errors.items() if y.level == AttributeWarning.Notice]:
+					del attribute_errors[k]
 
-			if any((ae.level == AttributeWarning.Warning for ae in attribute_errors.values())):
-				exit_code = 1
-			if any((ae.level == AttributeWarning.Critical for ae in attribute_errors.values())):
+			if attribute_errors:
+				msg = ', '.join([ae.long_message if args.verbose else ae.short_message for ae in attribute_errors.values()])
+
+				if any((ae.level == AttributeWarning.Warning for ae in attribute_errors.values())):
+					exit_code = 1
+				if any((ae.level == AttributeWarning.Critical for ae in attribute_errors.values())):
+					exit_code = 2
+
+			if not check.check_tests():
+				msg = (msg + '; S.M.A.R.T. self test reported an error').lstrip(';').strip()
 				exit_code = 2
 
-		if not check.check_tests():
-			msg = (msg + '; S.M.A.R.T. self test reported an error').lstrip(';').strip()
-			exit_code = 2
+			if not exit_code:
+				msg = "S.M.A.R.T. data OK"
 
-		if not exit_code:
-			msg = "S.M.A.R.T. data OK"
-
-		msg = "%s: %s" % (check.device_model, msg)
+			msg = "%s: %s" % (check.device_model, msg)
+		else:
+			msg = "Could not read S.M.A.R.T. data (executed as root?)"
+			exit_code = 3
 	except Exception as ex:
 		msg = "Plugin failed: %s" % ex
 		if args.debug:
