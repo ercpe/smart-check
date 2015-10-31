@@ -74,8 +74,11 @@ class SMARTCheck(object):
 			self.raw = file_or_string.read()
 		elif isinstance(file_or_string, str):
 			self.raw = file_or_string
+		elif isinstance(file_or_string, bytes):
+			self.raw = file_or_string.decode('UTF-8')
 		else:
 			raise Exception("Unknown type: %s" % type(file_or_string))
+
 		self.parsed_sections = None
 		self.db_path = db_path
 		self._database = None

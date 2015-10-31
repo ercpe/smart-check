@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
-from StringIO import StringIO
+try:
+    from StringIO import StringIO
+except ImportError:
+    from io import StringIO
 import os
 import unittest
 from smartcheck.check import SMARTCheck
@@ -30,16 +33,18 @@ class InformationBlockParsingTest(unittest.TestCase):
 				}),
 			]:
 
-			check = SMARTCheck(open(os.path.join(samples_path, filename)))
-			self.assertDictEqual(check.information, expected_data)
+			with open(os.path.join(samples_path, filename)) as f:
+				check = SMARTCheck(f)
+				self.assertDictEqual(check.information, expected_data)
 
 	def test_information_section_missing(self):
 		check = SMARTCheck(StringIO(""))
 		self.assertDictEqual(check.information, {})
 
 	def test_information_section_missing(self):
-		check = SMARTCheck(open(os.path.join(samples_path, 'no-information-section.txt')))
-		self.assertDictEqual(check.information, {})
+		with open(os.path.join(samples_path, 'no-information-section.txt')) as f:
+			check = SMARTCheck(f)
+			self.assertDictEqual(check.information, {})
 
 class SMARTDataParsingTest(unittest.TestCase):
 	def test_parsing(self):
@@ -71,17 +76,19 @@ class SMARTDataParsingTest(unittest.TestCase):
 				('242', 'Total_LBAs_Read', '0x0000', '100', '253', '000', 'Old_age', 'Offline', '-', '78560290534'),
 			])
 		]:
-			check = SMARTCheck(open(os.path.join(samples_path, filename)))
-			self.assertEqual(check.smart_data['overall_health_status'], overall_health)
-			self.assertEqual(check.smart_data['attributes'], attributes)
+			with open(os.path.join(samples_path, filename)) as f:
+				check = SMARTCheck(f)
+				self.assertEqual(check.smart_data['overall_health_status'], overall_health)
+				self.assertEqual(check.smart_data['attributes'], attributes)
 
 	def test_data_section_missing(self):
 		check = SMARTCheck(StringIO(""))
 		self.assertDictEqual(check.smart_data, {})
 
 	def test_data_section_missing2(self):
-		check = SMARTCheck(open(os.path.join(samples_path, 'no-data-section.txt')))
-		self.assertDictEqual(check.smart_data, {})
+		with open(os.path.join(samples_path, 'no-data-section.txt')) as f:
+			check = SMARTCheck(f)
+			self.assertDictEqual(check.smart_data, {})
 
 
 class SelfTestParsingTest(unittest.TestCase):
@@ -95,5 +102,6 @@ class SelfTestParsingTest(unittest.TestCase):
 				('4', 'Extended offline', 'Completed without error', '00%', '5', '-'),
 			])
 		]:
-			check = SMARTCheck(open(os.path.join(samples_path, filename)))
-			self.assertEqual(check.self_tests['test_results'], tests)
+			with open(os.path.join(samples_path, filename)) as f:
+				check = SMARTCheck(f)
+				self.assertEqual(check.self_tests['test_results'], tests)

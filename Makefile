@@ -1,7 +1,12 @@
 TARGET?=tests
 
-test:
-	PYTHONPATH=".:./src" python tests/
+test: test-py2 test-py3
+
+test-py2:
+	PYTHONPATH=".:./src" python2 tests/
+
+test-py3:
+	PYTHONPATH=".:./src" python3 tests/
 
 coverage:
 	coverage erase

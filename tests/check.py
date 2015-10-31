@@ -9,46 +9,50 @@ db_path = os.path.join(samples_path, '../../src/smartcheck/disks.yaml')
 class CheckTest(unittest.TestCase):
 
 	def test_check_broken1(self):
-		check = SMARTCheck(open(os.path.join(samples_path, 'seagate-barracuda-broken1.txt')))
-		self.assertFalse(check.check_tests())
-		self.assertFalse(check.check())
+		with open(os.path.join(samples_path, 'seagate-barracuda-broken1.txt')) as f:
+			check = SMARTCheck(f)
+			self.assertFalse(check.check_tests())
+			self.assertFalse(check.check())
 
 	def test_check_broken2(self):
-		check = SMARTCheck(open(os.path.join(samples_path, 'seagate-barracuda-broken2.txt')))
-		self.assertFalse(check.check_tests())
-		self.assertFalse(check.check())
+		with open(os.path.join(samples_path, 'seagate-barracuda-broken2.txt')) as f:
+			check = SMARTCheck(f)
+			self.assertFalse(check.check_tests())
+			self.assertFalse(check.check())
 
 	def test_smart_attributes_not_found(self):
-		check = SMARTCheck(open(os.path.join(samples_path, 'ST2000NM0033-9ZM175.txt')), db_path)
-		self.assertTrue(check.check_tests())
-		self.assertDictEqual(check.check_attributes(), {})  # Attributes not found in disks.json
-		self.assertTrue(check.check())
+		with open(os.path.join(samples_path, 'ST2000NM0033-9ZM175.txt')) as f:
+			check = SMARTCheck(f, db_path)
+			self.assertTrue(check.check_tests())
+			self.assertDictEqual(check.check_attributes(), {})  # Attributes not found in disks.json
+			self.assertTrue(check.check())
 
 	def test_smart_attributes_nothing_wrong(self):
-		check = SMARTCheck(open(os.path.join(samples_path, 'WDC-WD2000FYYZ-01UL1B1.txt')), db_path)
-		self.assertTrue(check.check_tests())
-		self.assertDictEqual(check.check_attributes(), {})
-		self.assertTrue(check.check())
+		with open(os.path.join(samples_path, 'WDC-WD2000FYYZ-01UL1B1.txt')) as f:
+			check = SMARTCheck(f, db_path)
+			self.assertTrue(check.check_tests())
+			self.assertDictEqual(check.check_attributes(), {})
+			self.assertTrue(check.check())
 
 	def test_smart_attributes_min_max(self):
 		# from list
-		check = SMARTCheck(open(os.path.join(samples_path, 'ST2000NM0033-9ZM175.txt')),
-						   os.path.join(samples_path, 'disks-min-max.yaml'))
-		self.assertTrue(check.check_tests())
-		self.assertDictEqual(check.check_attributes(), {
-			(9, 'Power_On_Hours'): AttributeWarning(AttributeWarning.Critical, 'Power_On_Hours', 16998)
-		})
-		self.assertFalse(check.check())
+		with open(os.path.join(samples_path, 'ST2000NM0033-9ZM175.txt')) as f:
+			check = SMARTCheck(f, os.path.join(samples_path, 'disks-min-max.yaml'))
+			self.assertTrue(check.check_tests())
+			self.assertDictEqual(check.check_attributes(), {
+				(9, 'Power_On_Hours'): AttributeWarning(AttributeWarning.Critical, 'Power_On_Hours', 16998)
+			})
+			self.assertFalse(check.check())
 
 		# from dict
-		check = SMARTCheck(open(os.path.join(samples_path, 'ST2000NM0033-9ZM175.txt')),
-						   os.path.join(samples_path, 'disks-min-or-max.yaml'))
-		self.assertTrue(check.check_tests())
-		self.assertDictEqual(check.check_attributes(), {
-			(9, 'Power_On_Hours'): AttributeWarning(AttributeWarning.Critical, 'Power_On_Hours', 16998),
-			(194, 'Temperature_Celsius'): AttributeWarning(AttributeWarning.Critical, 'Temperature_Celsius', 30)
-		})
-		self.assertFalse(check.check())
+		with open(os.path.join(samples_path, 'ST2000NM0033-9ZM175.txt')) as f:
+			check = SMARTCheck(f, os.path.join(samples_path, 'disks-min-or-max.yaml'))
+			self.assertTrue(check.check_tests())
+			self.assertDictEqual(check.check_attributes(), {
+				(9, 'Power_On_Hours'): AttributeWarning(AttributeWarning.Critical, 'Power_On_Hours', 16998),
+				(194, 'Temperature_Celsius'): AttributeWarning(AttributeWarning.Critical, 'Temperature_Celsius', 30)
+			})
+			self.assertFalse(check.check())
 
 	def test_smart_attributes_thresholds_min(self):
 		for sample_file, expected_attributes in [
@@ -65,10 +69,11 @@ class CheckTest(unittest.TestCase):
 				(4, 'Start_Stop_Count'): AttributeWarning(AttributeWarning.Warning, 'Start_Stop_Count', 2)
 			})
 		]:
-			check = SMARTCheck(open(os.path.join(samples_path, 'WDC-WD2000FYYZ-01UL1B1.txt')), os.path.join(samples_path, sample_file))
-			self.assertTrue(check.check_tests())
-			self.assertDictEqual(check.check_attributes(), expected_attributes)
-			self.assertFalse(check.check())
+			with open(os.path.join(samples_path, 'WDC-WD2000FYYZ-01UL1B1.txt')) as f:
+				check = SMARTCheck(f, os.path.join(samples_path, sample_file))
+				self.assertTrue(check.check_tests())
+				self.assertDictEqual(check.check_attributes(), expected_attributes)
+				self.assertFalse(check.check())
 
 	def test_generic_attributes(self):
 		base = """=== START OF INFORMATION SECTION ===
@@ -97,7 +102,7 @@ ID# ATTRIBUTE_NAME          FLAG     VALUE WORST THRESH TYPE      UPDATED  WHEN_
 			check = SMARTCheck(s, db_path)
 			failed_attributes = check.check_generic_attributes()
 			assert len(failed_attributes) == 1
-			(failed_id, failed_name), warning = failed_attributes.items()[0]
+			(failed_id, failed_name), warning = list(failed_attributes.items())[0]
 			assert int(failed_id) == int(attr_id)
 			assert warning.level == AttributeWarning.Notice
 			assert warning.value == '1'
@@ -129,7 +134,7 @@ ID# ATTRIBUTE_NAME          FLAG     VALUE WORST THRESH TYPE      UPDATED  WHEN_
 			failed_attributes = check.check_generic_attributes()
 			if notice_expected:
 				assert len(failed_attributes) == 1
-				(failed_id, failed_name), warning = failed_attributes.items()[0]
+				(failed_id, failed_name), warning = list(failed_attributes.items())[0]
 				assert int(failed_id) == int(attr_id)
 				assert warning.level == AttributeWarning.Notice
 				assert warning.value == attr_value
@@ -139,12 +144,13 @@ ID# ATTRIBUTE_NAME          FLAG     VALUE WORST THRESH TYPE      UPDATED  WHEN_
 			self.assertTrue(check.check_tests())
 
 	def test_ignore_attributes(self):
-		check = SMARTCheck(open(os.path.join(samples_path, 'seagate-barracuda-broken1.txt')))
+		with open(os.path.join(samples_path, 'seagate-barracuda-broken1.txt')) as f:
+			check = SMARTCheck(f)
 
-		for ignore_value in (198, '198', 'Offline_Uncorrectable'):
-			failed_attributes = check.check_attributes(ignore_attributes=[ignore_value])
-			assert len(failed_attributes) == 1
-			(failed_id, failed_name), failed_attribute = failed_attributes.items()[0]
-			assert failed_id == 197
-			assert failed_name == "Current_Pending_Sector"
-			assert int(failed_attribute.value) == 24
+			for ignore_value in (198, '198', 'Offline_Uncorrectable'):
+				failed_attributes = check.check_attributes(ignore_attributes=[ignore_value])
+				assert len(failed_attributes) == 1
+				(failed_id, failed_name), failed_attribute = list(failed_attributes.items())[0]
+				assert failed_id == 197
+				assert failed_name == "Current_Pending_Sector"
+				assert int(failed_attribute.value) == 24
