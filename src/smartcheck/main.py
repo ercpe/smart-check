@@ -6,9 +6,8 @@ import shlex
 import sys
 import logging
 import subprocess
-from smartcheck.check import SMARTCheck, AttributeWarning
+from smartcheck.check import SMARTCheck, AttributeWarning, DEFAULT_DISKS_FILE
 
-DEFAULT_DISKS_FILE=os.path.join(os.path.dirname(__file__), 'disks.yaml')
 
 def execute_smartctl(drive, interface=None, sudo=None, smartctl_path=None, smartctl_args=''):
 	command_line = "%s %s %s %s -a %s" % (

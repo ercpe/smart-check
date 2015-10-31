@@ -2,6 +2,9 @@
 import logging
 import yaml
 import re
+import os
+
+DEFAULT_DISKS_FILE=os.path.join(os.path.dirname(__file__), 'disks.yaml')
 
 INFORMATION_SECTION_START = '=== START OF INFORMATION SECTION ==='
 DATA_SECTION_START = '=== START OF READ SMART DATA SECTION ==='
