@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 import logging
+
+import sys
 import yaml
 import re
 import os
@@ -75,7 +77,7 @@ class SMARTCheck(object):
 	def __init__(self, file_or_string, db_path=None):
 		if hasattr(file_or_string, 'read'):
 			self.raw = file_or_string.read()
-		elif isinstance(file_or_string, str):
+		elif isinstance(file_or_string, str) or (sys.version_info[0] == 2 and isinstance(file_or_string, unicode)):
 			self.raw = file_or_string
 		elif isinstance(file_or_string, bytes):
 			self.raw = file_or_string.decode('UTF-8')
