@@ -22,8 +22,11 @@ def execute_smartctl(drive, interface=None, sudo=None, smartctl_path=None, smart
 	cmd = shlex.split(command_line)
 	process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, env={'LC_ALL': 'C'})
 	output = process.communicate()[0]
-	if process.returncode:
-		raise Exception("smartctl failed with status code %s" % process.returncode)
+	# TODO: See if we can get hints from the smartctl exit codes:
+	# https://www.freebsd.org/cgi/man.cgi?query=smartctl&manpath=FreeBSD+9.0-RELEASE+and+Ports&format=html#RETURN_VALUES
+	# at least we should not handle if the drive is in low-power mode (spindown)
+#	if process.returncode:
+#		raise Exception("smartctl failed with status code %s" % process.returncode)
 	return output
 
 if __name__ == "__main__":
