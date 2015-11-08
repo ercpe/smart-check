@@ -86,7 +86,7 @@ if __name__ == "__main__":
 					exit_code = 2
 
 			if not check.check_tests():
-				msg = (msg + '; S.M.A.R.T. self test reported an error').lstrip(';').strip()
+				msg = (msg.strip() + '; S.M.A.R.T. self test reported an error').lstrip(';').strip()
 				exit_code = 2
 
 			if not exit_code:

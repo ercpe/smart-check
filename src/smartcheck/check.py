@@ -24,7 +24,7 @@ INFORMATION_RE = [
 DATA_RE = [
 	('overall_health_status', re.compile('SMART overall-health self-assessment test result: (.*)', re.UNICODE)),
 ]
-DATA_ATTRIBUTES_RE = re.compile(r"\s*(\d+)\s+([\w\d_\-]+)\s+([0-9a-fx]+)\s+(\d+)\s+(\d+)\s+(\d+)\s+([\w\d_\-]+)\s+([\w\d]+)\s+([\w\d_\-]+)\s+(.*)", re.UNICODE)
+DATA_ATTRIBUTES_RE = re.compile(r"\s*(\d+)\s+([\w\d_\-]+)\s+([0-9a-fx]+)\s+(\d+)\s+(\d+)\s+(\d+)\s+([\w\d_\-]+)\s+([\w\d]+)\s+([\w\d_\-]+)\s+([^\r\n]*)", re.UNICODE)
 
 TEST_RESULT_RE = re.compile(r"#\s*(\d+)\s+(.*?)\s{2,}(.*?)\s{2,}\s+([\d%]+)\s+(\d+)\s+(\d+|-)", re.UNICODE)
 
@@ -44,7 +44,7 @@ class AttributeWarning(object):
 		self.level = level
 		self.field = attribute_name
 		self.value = value
-		self.description = description
+		self.description = (description or '').strip()
 
 	@property
 	def short_message(self):
