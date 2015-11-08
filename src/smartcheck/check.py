@@ -230,12 +230,13 @@ class SMARTCheck(object):
 	def check_generic_attributes(self):
 		failed_attributes = {}
 
-		for attrid, name, flag, value, worst, tresh, type, updated, when_failed, raw_value in self.smart_data['attributes']:
+		for attrid, name, flag, value, worst, thresh, attr_type, updated, when_failed, raw_value in self.smart_data['attributes']:
 			logging.debug("Attribute %s (%s): value=%s, raw value=%s" % (attrid, name, value, raw_value))
 			attrid = int(attrid)
 			attr_name = (name or '').lower()
 			int_value = toint(value)
 			int_raw_value = toint(raw_value)
+			int_thresh = toint(thresh)
 
 			# these tests are take from gsmartcontrol (storage_property_descr.cpp) and check for known pre-fail attributes
 			if attr_name in ('reallocated_sector_count', 'reallocated_sector_ct') and int_raw_value > 0:
@@ -294,6 +295,16 @@ class SMARTCheck(object):
 																	 name,
 																	 raw_value,
 																	 "The drive has less than half of its life left.")
+			else:
+				# execute a generic check for value < threshold
+				if int_value and int_thresh:
+					if int_value < int_thresh:
+						failed_attributes[(attrid, name)] = AttributeWarning(
+																	AttributeWarning.Warning if attr_type == 'Pre-fail' else AttributeWarning.Notice,
+																	name,
+																	raw_value,
+																	"Attribute value dropped below threshold of %s" % int_thresh)
+
 
 		logging.debug("Failed generic attributes: %s" % (failed_attributes, ))
 		return failed_attributes
