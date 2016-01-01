@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/ercpe/smart-check.svg?branch=master)](https://travis-ci.org/ercpe/smart-check) [![Coverage Status](https://coveralls.io/repos/ercpe/smart-check/badge.svg?branch=master&service=github)](https://coveralls.io/github/ercpe/smart-check?branch=master)
+
 # What is smart-check?
 
 After several undetected silent hard drive failures i looked (once again) for a working Nagios/Icinga plugin. There are many, many plugins which claim to be able to detect early signs of failing hard drives. Most of them just don't.
