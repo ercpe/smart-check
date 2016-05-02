@@ -12,12 +12,21 @@ class CheckTest(unittest.TestCase):
 		with open(os.path.join(samples_path, 'seagate-barracuda-broken1.txt')) as f:
 			check = SMARTCheck(f)
 			self.assertFalse(check.check_tests())
+			self.assertEqual(check.ata_error_count, 8)
 			self.assertFalse(check.check())
 
 	def test_check_broken2(self):
 		with open(os.path.join(samples_path, 'seagate-barracuda-broken2.txt')) as f:
 			check = SMARTCheck(f)
 			self.assertFalse(check.check_tests())
+			self.assertEqual(check.ata_error_count, 52)
+			self.assertFalse(check.check())
+
+	def test_check_broken3(self):
+		with open(os.path.join(samples_path, 'WDC-WD1000FYPS-01ZKB0.txt')) as f:
+			check = SMARTCheck(f)
+			self.assertTrue(check.check_tests())  # no test ran
+			self.assertEqual(check.ata_error_count, 32)
 			self.assertFalse(check.check())
 
 	def test_smart_attributes_not_found(self):
@@ -25,6 +34,7 @@ class CheckTest(unittest.TestCase):
 			check = SMARTCheck(f, db_path)
 			self.assertTrue(check.check_tests())
 			self.assertDictEqual(check.check_attributes(), {})  # Attributes not found in disks.json
+			self.assertEqual(check.ata_error_count, 0)
 			self.assertTrue(check.check())
 
 	def test_smart_attributes_nothing_wrong(self):
@@ -32,6 +42,7 @@ class CheckTest(unittest.TestCase):
 			check = SMARTCheck(f, db_path)
 			self.assertTrue(check.check_tests())
 			self.assertDictEqual(check.check_attributes(), {})
+			self.assertEqual(check.ata_error_count, 0)
 			self.assertTrue(check.check())
 
 	def test_smart_attributes_min_max(self):
@@ -42,6 +53,7 @@ class CheckTest(unittest.TestCase):
 			self.assertDictEqual(check.check_attributes(), {
 				(9, 'Power_On_Hours'): AttributeWarning(AttributeWarning.Critical, 'Power_On_Hours', 16998)
 			})
+			self.assertEqual(check.ata_error_count, 0)
 			self.assertFalse(check.check())
 
 		# from dict
@@ -52,6 +64,7 @@ class CheckTest(unittest.TestCase):
 				(9, 'Power_On_Hours'): AttributeWarning(AttributeWarning.Critical, 'Power_On_Hours', 16998),
 				(194, 'Temperature_Celsius'): AttributeWarning(AttributeWarning.Critical, 'Temperature_Celsius', 30)
 			})
+			self.assertEqual(check.ata_error_count, 0)
 			self.assertFalse(check.check())
 
 	def test_smart_attributes_thresholds_min(self):

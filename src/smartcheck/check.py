@@ -11,6 +11,7 @@ DEFAULT_DISKS_FILE=os.path.join(os.path.dirname(__file__), 'disks.yaml')
 INFORMATION_SECTION_START = '=== START OF INFORMATION SECTION ==='
 DATA_SECTION_START = '=== START OF READ SMART DATA SECTION ==='
 TESTS_SECTION_START = 'SMART Self-test log structure revision number'
+ATA_ERROR_COUNT = re.compile('^ATA Error Count: (\d+).*', re.MULTILINE | re.IGNORECASE)
 
 INFORMATION_RE = [
 	("model_family", re.compile('Model Family: (.*)', re.UNICODE)),
@@ -121,6 +122,10 @@ class SMARTCheck(object):
 	def device_model(self):
 		return self.information['device_model']
 
+	@property
+	def ata_error_count(self):
+		return self.parsed['ata_error_count']
+
 	def exists_in_database(self):
 		return self.get_attributes_from_database(self.device_model) is not None
 
@@ -138,6 +143,7 @@ class SMARTCheck(object):
 			'information': self.parse_information_section(self.raw),
 			'data': self.parse_data_section(self.raw),
 			'self_tests': self.parse_tests_section(self.raw),
+			'ata_error_count': self.parse_ata_error_count(self.raw),
 		}
 
 	@property
@@ -198,8 +204,14 @@ class SMARTCheck(object):
 			'test_results': TEST_RESULT_RE.findall(tests_text)
 		}
 
+	def parse_ata_error_count(self, s):
+		m = ATA_ERROR_COUNT.search(s)
+		if m:
+			return int(m.group(1))
+		return 0
+
 	def check(self, ignore_attributes=None):
-		return len(self.check_attributes(ignore_attributes or [])) == 0 and self.check_tests()
+		return len(self.check_attributes(ignore_attributes or [])) == 0 and self.check_tests() and self.ata_error_count == 0
 
 	def check_tests(self):
 		ok_test_results = [

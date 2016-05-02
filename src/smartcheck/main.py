@@ -89,6 +89,10 @@ if __name__ == "__main__":
 				msg = (msg.strip() + '; S.M.A.R.T. self test reported an error').lstrip(';').strip()
 				exit_code = 2
 
+			if check.ata_error_count:
+				msg = (msg.strip() + '; %s ATA errors found' % check.ata_error_count).lstrip(';').strip()
+				exit_code = 2
+
 			if not exit_code:
 				msg = "S.M.A.R.T. data OK"
 
