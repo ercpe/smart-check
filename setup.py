@@ -5,7 +5,7 @@ from setuptools import setup, find_packages
 
 setup(
 	name='smart-check',
-	version='0.1',
+	version='0.3',
 	description='A smart S.M.A.R.T. check',
 	author='Johann Schmitz',
 	author_email='johann@j-schmitz.net',
