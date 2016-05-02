@@ -198,8 +198,8 @@ class SMARTCheck(object):
 			'test_results': TEST_RESULT_RE.findall(tests_text)
 		}
 
-	def check(self, ignore_attributes=[]):
-		return len(self.check_attributes(ignore_attributes)) == 0 and self.check_tests()
+	def check(self, ignore_attributes=None):
+		return len(self.check_attributes(ignore_attributes or [])) == 0 and self.check_tests()
 
 	def check_tests(self):
 		ok_test_results = [
@@ -209,7 +209,7 @@ class SMARTCheck(object):
 		]
 		return not any([x[2] not in ok_test_results for x in self.self_tests['test_results']])
 
-	def check_attributes(self, ignore_attributes=[]):
+	def check_attributes(self, ignore_attributes=None):
 		failed_attributes = self.check_generic_attributes()
 
 		if self.exists_in_database():
