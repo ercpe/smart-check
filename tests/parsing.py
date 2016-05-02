@@ -1,13 +1,14 @@
 # -*- coding: utf-8 -*-
 try:
-    from StringIO import StringIO
+	from StringIO import StringIO
 except ImportError:
-    from io import StringIO
+	from io import StringIO
 import os
 import unittest
 from smartcheck.check import SMARTCheck
 
 samples_path = os.path.join(os.path.dirname(__file__), 'samples')
+
 
 class InformationBlockParsingTest(unittest.TestCase):
 
@@ -37,7 +38,7 @@ class InformationBlockParsingTest(unittest.TestCase):
 				check = SMARTCheck(f)
 				self.assertDictEqual(check.information, expected_data)
 
-	def test_information_section_missing(self):
+	def test_information_section_missing_empty(self):
 		check = SMARTCheck(StringIO(""))
 		self.assertDictEqual(check.information, {})
 
@@ -45,6 +46,7 @@ class InformationBlockParsingTest(unittest.TestCase):
 		with open(os.path.join(samples_path, 'no-information-section.txt')) as f:
 			check = SMARTCheck(f)
 			self.assertDictEqual(check.information, {})
+
 
 class SMARTDataParsingTest(unittest.TestCase):
 	def test_parsing(self):
