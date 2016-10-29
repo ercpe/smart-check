@@ -26,6 +26,7 @@ compile_optimized:
 coverage:
 	coverage erase
 	PYTHONPATH="." coverage run --source='.' --omit 'tests/*,setup.py' --branch tests/__main__.py
+	coverage xml -i
 	coverage report -m
 
 sonar:
