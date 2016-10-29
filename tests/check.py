@@ -167,3 +167,16 @@ ID# ATTRIBUTE_NAME          FLAG     VALUE WORST THRESH TYPE      UPDATED  WHEN_
                 assert failed_id == 197
                 assert failed_name == "Current_Pending_Sector"
                 assert int(failed_attribute.value) == 24
+
+    def test_notice_warnings(self):
+        with open(os.path.join(samples_path, 'hitachi-HDS723020BLA642.txt')) as f:
+            check = SMARTCheck(f)
+            
+            self.assertFalse(check.check())
+            
+            failed = check.check_attributes()
+            
+            self.assertEqual(len(failed), 1)
+            self.assertEqual(failed, {
+                (5, 'Reallocated_Sector_Ct'): AttributeWarning(AttributeWarning.Notice, 'Reallocated_Sector_Ct', '84')
+            })

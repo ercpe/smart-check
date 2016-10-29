@@ -45,6 +45,8 @@ if __name__ == "__main__":
     parser.add_argument('-f', '--file', help="Use S.M.A.R.T. report from file instead of calling smartctl (Use - to read from stdin)")
 
     parser.add_argument('-x', '--exclude-notices', help='Do not report NOTICE warnings (default: %(default)s)', action='store_true', default=False)
+    parser.add_argument('-n', '--notices-are-warnings', help='Exit with status code 1 on NOTICEs too (default: %(default)s)', action='store_true', default=False)
+
     parser.add_argument('--ignore-attributes', help='Ignore this S.M.A.R.T. attributes (id or name)', nargs='*')
     parser.add_argument('-v', '--verbose', help='Verbose messages', action='store_true', default=False)
     parser.add_argument('--debug', help="Print debug messages", action="store_true", default=False)
@@ -90,6 +92,11 @@ if __name__ == "__main__":
             if attribute_errors:
                 msg = ', '.join([ae.long_message if args.verbose else ae.short_message for ae in attribute_errors.values()])
 
+                # set the exit code of NOTICEs to WARNINGs if (-n / --notices-are-warnings) is set
+                if args.notices_are_warnings and \
+                        any((ae.level == AttributeWarning.Notice for ae in attribute_errors.values())):
+                    exit_code = 1
+
                 if any((ae.level == AttributeWarning.Warning for ae in attribute_errors.values())):
                     exit_code = 1
                 if any((ae.level == AttributeWarning.Critical for ae in attribute_errors.values())):
@@ -103,7 +110,7 @@ if __name__ == "__main__":
                 msg = (msg.strip() + '; %s ATA errors found' % check.ata_error_count).lstrip(';').strip()
                 exit_code = 2
 
-            if not exit_code:
+            if not exit_code and not msg:
                 msg = "S.M.A.R.T. data OK"
 
             msg = "%s: %s" % (check.device_model, msg)
