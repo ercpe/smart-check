@@ -15,7 +15,12 @@ setup(
     download_url='https://code.not-your-server.de/smart-check.git/tags/',
     packages=find_packages('.'),
     include_package_data=True,
-    package_data = {'': ['*.yaml']},
+    package_data={'': ['*.yaml']},
     zip_safe=False,
     license='GPL-3',
+    entry_points={
+        'console_scripts': [
+            'smart-check = smartcheck.__main__:main'
+        ]
+    },
 )

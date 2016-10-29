@@ -30,7 +30,7 @@ def execute_smartctl(drive, interface=None, sudo=None, smartctl_path=None, smart
 #        raise Exception("smartctl failed with status code %s" % process.returncode)
     return output
 
-if __name__ == "__main__":
+def main():
     parser = ArgumentParser()
 
     parser.add_argument('--disks-file', default=DEFAULT_DISKS_FILE)
@@ -125,3 +125,7 @@ if __name__ == "__main__":
 
     print(msg)
     sys.exit(exit_code)
+
+
+if __name__ == "__main__":
+    main()
