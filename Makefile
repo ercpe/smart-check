@@ -3,15 +3,15 @@ TARGET?=tests
 VERSION := $(shell grep -Po '"(.*)"' smartcheck/__init__.py | sed -e 's/"//g')
 
 test_default_python:
-	python tests/ -v
+	PYTHONPATH="." python tests/ -v
 
 test_py2:
 	@echo Executing test with python2
-	python2 tests/ -v
+	PYTHONPATH="." python2 tests/ -v
 
 test_py3:
 	@echo Executing test with python3
-	python3 tests/ -v
+	PYTHONPATH="." python3 tests/ -v
 
 test: test_py2 test_py3
 
@@ -25,7 +25,7 @@ compile_optimized:
 
 coverage:
 	coverage erase
-	coverage run --source='.' --omit 'tests/*,setup.py' --branch tests/__main__.py
+	PYTHONPATH="." coverage run --source='.' --omit 'tests/*,setup.py' --branch tests/__main__.py
 	coverage report -m
 
 sonar:
