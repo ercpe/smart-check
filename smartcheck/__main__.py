@@ -1,11 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 from argparse import ArgumentParser
-import os
 import shlex
 import sys
 import logging
 import subprocess
+
+from smartcheck import VERSION
 from smartcheck.check import SMARTCheck, AttributeWarning, DEFAULT_DISKS_FILE
 
 
@@ -47,8 +48,13 @@ if __name__ == "__main__":
     parser.add_argument('--ignore-attributes', help='Ignore this S.M.A.R.T. attributes (id or name)', nargs='*')
     parser.add_argument('-v', '--verbose', help='Verbose messages', action='store_true', default=False)
     parser.add_argument('--debug', help="Print debug messages", action="store_true", default=False)
+    parser.add_argument('--version', action='store_true', dest='version', help='show version and exit')
 
     args = parser.parse_args()
+
+    if args.version:
+        print("smart-check %s" % VERSION)
+        sys.exit(0)
 
     if args.file and any([args.interface, args.drive]):
         parser.error('-f/--file cannot be used with a device and/or -i/--interface')

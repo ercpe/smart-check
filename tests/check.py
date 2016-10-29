@@ -4,7 +4,7 @@ import os
 from smartcheck.check import SMARTCheck, AttributeWarning
 
 samples_path = os.path.join(os.path.dirname(__file__), 'samples')
-db_path = os.path.join(samples_path, '../../src/smartcheck/disks.yaml')
+db_path = os.path.join(samples_path, '../../smartcheck/disks.yaml')
 
 class CheckTest(unittest.TestCase):
 
