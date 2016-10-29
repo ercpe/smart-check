@@ -59,6 +59,10 @@ if __name__ == "__main__":
     if args.file and any([args.interface, args.drive]):
         parser.error('-f/--file cannot be used with a device and/or -i/--interface')
 
+    if not (args.file or args.drive):
+        parser.print_help()
+        sys.exit(1)
+
     if args.debug:
         logging.basicConfig(level=logging.DEBUG, format='%(levelname)-8s %(message)s')
 
@@ -104,7 +108,7 @@ if __name__ == "__main__":
 
             msg = "%s: %s" % (check.device_model, msg)
         else:
-            msg = "Could not read S.M.A.R.T. data (executed as root?)"
+            msg = "Could not read S.M.A.R.T. data from %s. Does the disk exists? (executed as root?)" % args.drive
             exit_code = 3
     except Exception as ex:
         msg = "Plugin failed: %s" % ex
