@@ -2,7 +2,7 @@
 *.pyc
 *.pyo
 .coverage
-
+coverage.xml
 
 *.egg-info
 dist/
