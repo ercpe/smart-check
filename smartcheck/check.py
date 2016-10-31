@@ -246,7 +246,7 @@ class SMARTCheck(object):
         failed_attributes = {}
 
         for attrid, name, flag, value, worst, thresh, attr_type, updated, when_failed, raw_value in self.smart_data['attributes']:
-            logger.debug("Attribute %s (%s): value=%s, raw value=%s", attrid, name, value, raw_value)
+            logger.debug("Attribute %s (%s): value=%s, raw value=%s, worst=%s, thresh=%s", attrid, name, value, raw_value, worst, thresh)
             attrid = int(attrid)
             attr_name = (name or '').lower()
             int_value = toint(value)
