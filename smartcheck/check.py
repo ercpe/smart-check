@@ -6,6 +6,8 @@ import yaml
 import re
 import os
 
+logger = logging.getLogger(__name__)
+
 DEFAULT_DISKS_FILE=os.path.join(os.path.dirname(__file__), 'disks.yaml')
 
 INFORMATION_SECTION_START = '=== START OF INFORMATION SECTION ==='
@@ -133,9 +135,9 @@ class SMARTCheck(object):
         for dev in self.database:
             device_regexprs = dev['model'] if isinstance(dev['model'], list) else [dev['model']]
             if any(re.match(r, device_model, re.IGNORECASE) for r in device_regexprs):
-                logging.debug("Device exists in database (one of %s matches %s)" % (device_regexprs, self.device_model))
+                logger.debug("Device exists in database (one of %s matches %s)", device_regexprs, self.device_model)
                 return dev['attributes']
-        logging.debug("Device does not exist in database")
+        logger.debug("Device does not exist in database")
         return None
 
     def parse(self):
@@ -172,7 +174,7 @@ class SMARTCheck(object):
 
     def parse_data_section(self, s):
         if DATA_SECTION_START not in s:
-            logging.info("No data section found")
+            logger.info("No data section found")
             return {}
 
         start = s.index(DATA_SECTION_START)
@@ -244,7 +246,7 @@ class SMARTCheck(object):
         failed_attributes = {}
 
         for attrid, name, flag, value, worst, thresh, attr_type, updated, when_failed, raw_value in self.smart_data['attributes']:
-            logging.debug("Attribute %s (%s): value=%s, raw value=%s" % (attrid, name, value, raw_value))
+            logger.debug("Attribute %s (%s): value=%s, raw value=%s", attrid, name, value, raw_value)
             attrid = int(attrid)
             attr_name = (name or '').lower()
             int_value = toint(value)
@@ -318,8 +320,7 @@ class SMARTCheck(object):
                                                                     raw_value,
                                                                     "Attribute value dropped below threshold of %s" % int_thresh)
 
-
-        logging.debug("Failed generic attributes: %s" % (failed_attributes, ))
+        logger.debug("Failed generic attributes: %s" % failed_attributes)
         return failed_attributes
 
     def check_device_attributes(self):
@@ -343,9 +344,14 @@ class SMARTCheck(object):
                     check_value = value if value_field == "VALUE" else raw_value
                     check_value = int(check_value or -1)
 
+                    logger.debug("Value field: %s, min: %s, max: %s, value: %s, raw_value: %s",
+                        value, min_value, max_value, value, raw_value
+                    )
+
                     if not (int(min_value) <= check_value <= int(max_value)):
-                        logging.info("Attribute %s (%s) failed: not %s <= %s <= %s" % (attrid, name, min_value, check_value, max_value))
+                        logger.info("Attribute %s (%s) failed: not %s <= %s <= %s", attrid, name, min_value, check_value, max_value)
                         failed_attributes[(attrid, name)] = AttributeWarning(AttributeWarning.Critical, name, check_value)
+
                 elif isinstance(db_attrs, dict):
                     value_field = db_attrs.get('field', 'RAW_VALUE')
                     check_value = value if value_field == "VALUE" else raw_value
@@ -368,12 +374,12 @@ class SMARTCheck(object):
                                 (to_m and check_value <= int(to_m.group(1))) or \
                                 (from_to_m and (int(from_to_m.group(1)) <= check_value <= int(from_to_m.group(2)))):
 
-                                logging.info("Attribute %s (%s) failed with %s: not within treshold %s" % (attrid, name, failure_type, v))
+                                logger.info("Attribute %s (%s) failed with %s: not within treshold %s", attrid, name, failure_type, v)
                                 failed_attributes[(attrid, name)] = AttributeWarning(failure_type, name, check_value)
                     else:
                         if (min_value is not None and check_value >= int(min_value)) or \
                             (max_value is not None and check_value <= int(max_value)):
-                            logging.info("Attribute %s (%s) failed: not %s >= %s <= %s" % (attrid, name, min_value, check_value, max_value))
+                            logger.info("Attribute %s (%s) failed: not %s >= %s <= %s", attrid, name, min_value, check_value, max_value)
                             failed_attributes[(attrid, name)] = AttributeWarning(AttributeWarning.Critical, name, check_value)
 
                 else:
