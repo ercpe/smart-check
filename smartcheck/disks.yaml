@@ -531,7 +531,7 @@
       crit_threshold: ":22"
     5: # Re-allocated Sector Count
       field: "RAW_VALUE"
-      warn_threshold: "0:"
+      warn_threshold: "20:"
       crit_threshold: "40:"
     10: ["RAW_VALUE", 0, 10] # Spin Retry Count
     11: ["RAW_VALUE", 0, 10] # Calibration Retry Count
