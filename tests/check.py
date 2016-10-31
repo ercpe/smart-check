@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import unittest
 import os
-from smartcheck.check import SMARTCheck, AttributeWarning
+from smartcheck.check import SMARTCheck, AttributeWarning, parse_range_specifier
 
 samples_path = os.path.join(os.path.dirname(__file__), 'samples')
 db_path = os.path.join(samples_path, '../../smartcheck/disks.yaml')
@@ -180,3 +180,40 @@ ID# ATTRIBUTE_NAME          FLAG     VALUE WORST THRESH TYPE      UPDATED  WHEN_
             self.assertEqual(failed, {
                 (5, 'Reallocated_Sector_Ct'): AttributeWarning(AttributeWarning.Notice, 'Reallocated_Sector_Ct', 84)
             })
+
+    def test_parse_range_specifier(self):
+        # greater than
+        f = parse_range_specifier(1)
+        assert f(1) is False
+        assert f(2)
+
+        # greater than
+        f = parse_range_specifier('1')
+        assert f(1) is False
+        assert f(2)
+
+        # greater than
+        f = parse_range_specifier('1:')
+        assert f(1) is False
+        assert f(2)
+
+        # less than
+        f = parse_range_specifier(':2')
+        assert f(-11)
+        assert f(1)
+        assert f(2) is False
+
+        # range 'from:to' - including both ends as valid values
+        f = parse_range_specifier('1:2')
+        assert f(-1) is False
+        assert f(0) is False
+        assert f(1)
+        assert f(2)
+        assert f(3) is False
+
+        # invalid
+        f = parse_range_specifier('test')
+        assert f(0) is False
+        assert f(1) is False
+        assert f(2) is False
+
