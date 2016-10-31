@@ -27,7 +27,10 @@
 
 - model: "Crucial_CT1024MX200SSD1"
   attributes:
-    5: ["RAW_VALUE", 10, 20] # Reallocated NAND Block Count
+    5: # Reallocated NAND Block Count
+      field: "RAW_VALUE"
+      warn_threshold: "10:"
+      crit_threshold: "20:"
     171: ["RAW_VALUE", 0, 10] # Program Fail Count
     172: ["RAW_VALUE", 0, 10] # Erase Fail Count
     180: # Unused Reserve (Spare) NAND Blocks
@@ -67,7 +70,10 @@
       field: "VALUE"
       warn_threshold: ":34"
       crit_threshold: ":24"
-    5: ["RAW_VALUE", 20, 40] # Re-allocated Sector Count
+    5: # Re-allocated Sector Count
+      field: "RAW_VALUE"
+      warn_threshold: "20:"
+      crit_threshold: "40:"
     8: # Seek Time Performance
       field: "VALUE"
       warn_threshold: ":30"
@@ -95,7 +101,10 @@
   - "SSDSC2BA012T401"
   - "SSDSC2BX016T401"
   attributes:
-    5: ["RAW_VALUE", 20, 40] # Re-allocated Sector Count
+    5: # Re-allocated Sector Count
+      field: "RAW_VALUE"
+      warn_threshold: "20:"
+      crit_threshold: "40:"
     171: # Program Fail Count
       field: "VALUE"
       warn_threshold: ":16"
@@ -130,7 +139,10 @@
   - "INTEL SSDSA2CW160G3"
   - "INTEL SSDSA2CT040G3"
   attributes:
-    5: ["RAW_VALUE", 20, 40] # Re-allocated Sector Count
+    5: # Re-allocated Sector Count
+      field: "RAW_VALUE"
+      warn_threshold: "20:"
+      crit_threshold: "40:"
     171: # Program Fail Count
       field: "VALUE"
       warn_threshold: ":16"
@@ -159,7 +171,10 @@
   - "Intel 520 Series SSDs"
   - "INTEL SSDSC2CW240A3"
   attributes:
-    5: ["RAW_VALUE", 20, 40] # Reallocated sector count
+    5: # Re-allocated Sector Count
+      field: "RAW_VALUE"
+      warn_threshold: "20:"
+      crit_threshold: "40:"
     171: # Program fail count
       warn_threshold: ":16"
       crit_threshold: ":11"
@@ -194,7 +209,10 @@
   - "INTEL SSDSC2BB800G4"
   - "INTEL SSDSC2BB012T4"
   attributes:
-    5: ["RAW_VALUE", 20, 40] # Re-allocated Sector Count
+    5: # Re-allocated Sector Count
+      field: "RAW_VALUE"
+      warn_threshold: "20:"
+      crit_threshold: "40:"
     171: # Program Fail Count
       field: "VALUE"
       warn_threshold: ":16"
@@ -231,7 +249,10 @@
   - "INTEL SSDSC2BA400G3"
   - "INTEL SSDSC2BA800G3"
   attributes:
-    5: ["RAW_VALUE", 20, 40] # Re-allocated Sector Count
+    5: # Re-allocated Sector Count
+      field: "RAW_VALUE"
+      warn_threshold: "20:"
+      crit_threshold: "40:"
     171: # Program Fail Count
       field: "VALUE"
       warn_threshold: ":16"
@@ -269,7 +290,10 @@
   - "SanDisk SD7UB2Q512G1022"
   - "SanDisk SD7UB2Q512G1122"
   attributes:
-    5: ["RAW_VALUE", 20, 40] # Re-allocated Sector Count
+    5: # Re-allocated Sector Count
+      field: "RAW_VALUE"
+      warn_threshold: "20:"
+      crit_threshold: "40:"
     171: ["RAW_VALUE", 0, 10] # Program_Fail_Count
     172: ["RAW_VALUE", 0, 10] # Erase_Fail_Count
     187: ["RAW_VALUE", 0, 10] # Reported_Uncorrect
@@ -285,7 +309,10 @@
   - "SAMSUNG MZ7GE480HMGR-00003"
   - "SAMSUNG MZ7GE960HMGR-00003"
   attributes:
-    5: ["RAW_VALUE", 10, 20] # Re-allocated Sector Count
+    5: # Re-allocated Sector Count
+      field: "RAW_VALUE"
+      warn_threshold: "10:"
+      crit_threshold: "20:"
     177: # Wear Leveling Count
       field: "VALUE"
       warn_threshold: ":16"
@@ -327,7 +354,10 @@
       field: "VALUE"
       warn_threshold: ":32"
       crit_threshold: ":22"
-    5: ["VALUE", 20, 40] # Re-allocated Sector Count
+    5: # Re-allocated Sector Count
+      field: "RAW_VALUE"
+      warn_threshold: "20:"
+      crit_threshold: "40:"
     10: ["RAW_VALUE", 0, 10] # Spin Retry Count
     11: ["RAW_VALUE", 0, 10] # Calibration Retry Count
     196: ["RAW_VALUE", 0, 10] # Reallocated Event Count
@@ -348,7 +378,10 @@
       field: "VALUE"
       warn_threshold: ":32"
       crit_threshold: ":22"
-    5: ["VALUE", 20, 40] # Re-allocated Sector Count
+    5: # Re-allocated Sector Count
+      field: "RAW_VALUE"
+      warn_threshold: "20:"
+      crit_threshold: "40:"
     10: ["RAW_VALUE", 0, 10] # Spin Retry Count
     197: ["RAW_VALUE", 0, 10] # Current Pending Sector
     198: ["RAW_VALUE", 0, 10] # Offline Uncorrectable
@@ -367,7 +400,10 @@
       field: "VALUE"
       warn_threshold: ":32"
       crit_threshold: ":22"
-    5: ["VALUE", 20, 40] # Re-allocated Sector Count
+    5: # Re-allocated Sector Count
+      field: "RAW_VALUE"
+      warn_threshold: "20:"
+      crit_threshold: "40:"
     10: ["RAW_VALUE", 0, 10] # Spin Retry Count
     197: ["RAW_VALUE", 0, 10] # Current Pending Sector
     198: ["RAW_VALUE", 0, 10] # Offline Uncorrectable
@@ -386,7 +422,10 @@
       field: "VALUE"
       warn_threshold: ":32"
       crit_threshold: ":22"
-    5: ["VALUE", 20, 40] # Re-allocated Sector Count
+    5: # Re-allocated Sector Count
+      field: "RAW_VALUE"
+      warn_threshold: "20:"
+      crit_threshold: "40:"
     10: ["RAW_VALUE", 0, 10] # Spin Retry Count
     197: ["RAW_VALUE", 0, 10] # Current Pending Sector
     198: ["RAW_VALUE", 0, 10] # Offline Uncorrectable
@@ -397,7 +436,10 @@
   - "Seagate Constellation ES.3 SATAIII 4TB Serie"
   - "ST4000NM0033-9ZM170"
   attributes:
-    5: ["RAW_VALUE", 20, 40] # Re-allocated Sector Count
+    5: # Re-allocated Sector Count
+      field: "RAW_VALUE"
+      warn_threshold: "20:"
+      crit_threshold: "40:"
     184: # End-to-End Error Detection Count
       field: "VALUE"
       warn_threshold: ":96"
@@ -431,7 +473,10 @@
       field: "VALUE"
       warn_threshold: ":32"
       crit_threshold: ":22"
-    5: ["RAW_VALUE", 20, 40] # Re-allocated Sector Count
+    5: # Re-allocated Sector Count
+      field: "RAW_VALUE"
+      warn_threshold: "20:"
+      crit_threshold: "40:"
     10: ["RAW_VALUE", 0, 10] # Spin Retry Count
     11: ["RAW_VALUE", 0, 10] # Calibration Retry Count
     196: ["RAW_VALUE", 0, 10] # Reallocated Event Count
@@ -452,7 +497,10 @@
       field: "VALUE"
       warn_threshold: ":32"
       crit_threshold: ":22"
-    5: ["RAW_VALUE", 20, 40] # Re-allocated Sector Count
+    5: # Re-allocated Sector Count
+      field: "RAW_VALUE"
+      warn_threshold: "20:"
+      crit_threshold: "40:"
     10: ["RAW_VALUE", 0, 10] # Spin Retry Count
     11: ["RAW_VALUE", 0, 10] # Calibration Retry Count
     196: ["RAW_VALUE", 0, 10] # Reallocated Event Count
@@ -481,7 +529,10 @@
       field: "VALUE"
       warn_threshold: ":32"
       crit_threshold: ":22"
-    5: ["RAW_VALUE", 0, 40] # Re-allocated Sector Count
+    5: # Re-allocated Sector Count
+      field: "RAW_VALUE"
+      warn_threshold: "0:"
+      crit_threshold: "40:"
     10: ["RAW_VALUE", 0, 10] # Spin Retry Count
     11: ["RAW_VALUE", 0, 10] # Calibration Retry Count
     196: ["RAW_VALUE", 0, 10] # Reallocated Event Count
