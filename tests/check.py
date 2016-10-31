@@ -118,7 +118,7 @@ ID# ATTRIBUTE_NAME          FLAG     VALUE WORST THRESH TYPE      UPDATED  WHEN_
             (failed_id, failed_name), warning = list(failed_attributes.items())[0]
             assert int(failed_id) == int(attr_id)
             assert warning.level == AttributeWarning.Notice
-            assert warning.value == '1'
+            assert warning.value == 1
             self.assertTrue(check.check_tests())
             self.assertFalse(check.check())
 
@@ -178,5 +178,5 @@ ID# ATTRIBUTE_NAME          FLAG     VALUE WORST THRESH TYPE      UPDATED  WHEN_
             
             self.assertEqual(len(failed), 1)
             self.assertEqual(failed, {
-                (5, 'Reallocated_Sector_Ct'): AttributeWarning(AttributeWarning.Notice, 'Reallocated_Sector_Ct', '84')
+                (5, 'Reallocated_Sector_Ct'): AttributeWarning(AttributeWarning.Notice, 'Reallocated_Sector_Ct', 84)
             })

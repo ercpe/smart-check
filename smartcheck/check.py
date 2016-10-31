@@ -9,6 +9,7 @@ import os
 logger = logging.getLogger(__name__)
 
 DEFAULT_DISKS_FILE=os.path.join(os.path.dirname(__file__), 'disks.yaml')
+GENERIC_ATTRS_FILE=os.path.join(os.path.dirname(__file__), 'generic.yaml')
 
 INFORMATION_SECTION_START = '=== START OF INFORMATION SECTION ==='
 DATA_SECTION_START = '=== START OF READ SMART DATA SECTION ==='
@@ -37,6 +38,27 @@ def toint(s, default=0):
         return int(s)
     except ValueError:
         return default
+
+
+def parse_range_specifier(s):
+    # should be functional equivalent to the next one
+    if isinstance(s, int):
+        return lambda x: x > s
+
+    # either '10' or '10:'
+    if re.match("^[0-9]+$", s) or re.match("^[0-9]+:$", s):
+        return lambda x: x > int(s.rstrip(':'))
+    
+    # ':10'
+    if re.match("^:[0-9]+$", s):
+        return lambda x: x < int(s.lstrip(':'))
+
+    from_to = re.match("^([0-9]+):([0-9]+)$", s, re.IGNORECASE)
+    if from_to:
+        return lambda x: int(from_to.group(1)) <= x <= int(from_to.group(2))
+    
+    logger.error("Couldn't parse '%s' - it will be ignored")
+    return lambda x: False
 
 
 class AttributeWarning(object):
@@ -91,6 +113,7 @@ class SMARTCheck(object):
         self.parsed_sections = None
         self.db_path = db_path
         self._database = None
+        self._generic = None
 
     @property
     def information(self):
@@ -119,6 +142,16 @@ class SMARTCheck(object):
             else:
                 self._database = []
         return self._database
+
+    @property
+    def generic_attributes_checks(self):
+        if self._generic is None:
+            try:
+                with open(GENERIC_ATTRS_FILE) as f:
+                    self._generic = yaml.load(f) or []
+            except:
+                logger.exception("Could not read %s", GENERIC_ATTRS_FILE)
+        return self._generic
 
     @property
     def device_model(self):
@@ -247,78 +280,40 @@ class SMARTCheck(object):
 
         for attrid, name, flag, value, worst, thresh, attr_type, updated, when_failed, raw_value in self.smart_data['attributes']:
             logger.debug("Attribute %s (%s): value=%s, raw value=%s, worst=%s, thresh=%s", attrid, name, value, raw_value, worst, thresh)
+
             attrid = int(attrid)
             attr_name = (name or '').lower()
             int_value = toint(value)
             int_raw_value = toint(raw_value)
             int_thresh = toint(thresh)
 
-            # these tests are take from gsmartcontrol (storage_property_descr.cpp) and check for known pre-fail attributes
-            if attr_name in ('reallocated_sector_count', 'reallocated_sector_ct') and int_raw_value > 0:
-                failed_attributes[(attrid, name)] = AttributeWarning(AttributeWarning.Notice,
-                                                                     name,
-                                                                     raw_value,
-                                                                     "The drive has a non-zero Raw value, but there is no SMART warning yet. " +
-                                                                     "This could be an indication of future failures and/or potential data loss in bad sectors.")
-            elif attr_name == 'spin_up_retry_count' and int_raw_value > 0:
-                failed_attributes[(attrid, name)] = AttributeWarning(AttributeWarning.Notice,
-                                                                     name,
-                                                                     raw_value,
-                                                                     "The drive has a non-zero Raw value, but there is no SMART warning yet. " +
-                                                                     "Your drive may have problems spinning up, which could lead to a complete mechanical failure.")
-            elif attr_name == "soft_read_error_rate" and int_raw_value > 0:
-                failed_attributes[(attrid, name)] = AttributeWarning(AttributeWarning.Notice,
-                                                                     name,
-                                                                     raw_value,
-                                                                     "The drive has a non-zero Raw value, but there is no SMART warning yet. " +
-                                                                     "This could be an indication of future failures and/or potential data loss in bad sectors.")
-            elif attr_name in ("temperature_celsius", "temperature_celsius_x10"):
-                if 50 <= int_raw_value <= 120:
-                    # Temperature (for some it may be 10xTemp, so limit the upper bound.)
-                    failed_attributes[(attrid, name)] = AttributeWarning(AttributeWarning.Notice,
-                                                                         name,
-                                                                         int_raw_value,
-                                                                         "The temperature of the drive is higher than 50 degrees Celsius. " +
-                                                                         "This may shorten its lifespan and cause damage under severe load.")
-                elif int_raw_value > 500:
-                    # Temperature (for some it may be 10xTemp, so limit the upper bound.)
-                    failed_attributes[(attrid, name)] = AttributeWarning(AttributeWarning.Notice,
-                                                                         name,
-                                                                         int_raw_value,
-                                                                         "The temperature of the drive is higher than 50 degrees Celsius. " +
-                                                                         "This may shorten its lifespan and cause damage under severe load.")
-            elif attr_name == "reallocation_event_count" and int_raw_value > 0:
-                failed_attributes[(attrid, name)] = AttributeWarning(AttributeWarning.Notice,
-                                                                     name,
-                                                                     raw_value,
-                                                                     "The drive has a non-zero Raw value, but there is no SMART warning yet. " +
-                                                                     "This could be an indication of future failures and/or potential data loss in bad sectors.")
-            elif attr_name in ("current_pending_sector", "current_pending_sector_count", "total_pending_sectors") and int_raw_value > 0:
-                failed_attributes[(attrid, name)] = AttributeWarning(AttributeWarning.Notice,
-                                                                     name,
-                                                                     raw_value,
-                                                                     "The drive has a non-zero Raw value, but there is no SMART warning yet. " +
-                                                                     "This could be an indication of future failures and/or potential data loss in bad sectors.")
-            elif attr_name in ("offline_uncorrectable", "total_offline_uncorrectable") and int_raw_value > 0:
-                failed_attributes[(attrid, name)] = AttributeWarning(AttributeWarning.Notice,
-                                                                     name,
-                                                                     raw_value,
-                                                                     "The drive has a non-zero Raw value, but there is no SMART warning yet. " +
-                                                                     "This could be an indication of future failures and/or potential data loss in bad sectors.")
-            elif attr_name == "ssd_life_left" and int_value < 50:
-                failed_attributes[(attrid, name)] = AttributeWarning(AttributeWarning.Notice,
-                                                                     name,
-                                                                     raw_value,
-                                                                     "The drive has less than half of its life left.")
-            else:
-                # execute a generic check for value < threshold
-                if int_value and int_thresh:
-                    if int_value < int_thresh:
-                        failed_attributes[(attrid, name)] = AttributeWarning(
-                                                                    AttributeWarning.Warning if attr_type == 'Pre-fail' else AttributeWarning.Notice,
-                                                                    name,
-                                                                    raw_value,
-                                                                    "Attribute value dropped below threshold of %s" % int_thresh)
+            for rule in self.generic_attributes_checks:
+                if attr_name not in rule.get('attributes', []):
+                    continue
+
+                if 'value' in rule:
+                    check_value = int_value
+                    func = parse_range_specifier(rule['value'])
+                elif 'raw_value' in rule:
+                    check_value = int_raw_value
+                    func = parse_range_specifier(rule['raw_value'])
+
+                if func(check_value):
+                    failed_attributes[(attrid, name)] = AttributeWarning(AttributeWarning.Notice, name, check_value, rule['message'])
+                    break
+            
+            if (attrid, name) in failed_attributes:
+                # don't check against threshold if one of the generic rules already matched
+                continue
+
+            # execute a generic check for value < threshold
+            if int_value and int_thresh:
+                if int_value < int_thresh:
+                    failed_attributes[(attrid, name)] = AttributeWarning(
+                                                                AttributeWarning.Warning if attr_type == 'Pre-fail' else AttributeWarning.Notice,
+                                                                name,
+                                                                raw_value,
+                                                                "Attribute value dropped below threshold of %s" % int_thresh)
 
         logger.debug("Failed generic attributes: %s" % failed_attributes)
         return failed_attributes
