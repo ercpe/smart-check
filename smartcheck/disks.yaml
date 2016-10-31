@@ -20,7 +20,7 @@
 #      crit_threshold: "<start>:" OR ":<end>" or "<start>:<end>" # The range in which the value is consired as CRITICAL
 #
 #      Note: you cannot specify min/max AND *_threshold at the same time
-#      Note: The meaning of min and max is the opposite of the notation above: The value is considired bad
+#      Note: The meaning of min and max is the opposite of the notation above: The value is considered bad
 #            if the value is above min and/or below max
 #
 # <device-model-regex> can also be a list of regular expressions
