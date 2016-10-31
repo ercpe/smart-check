@@ -344,8 +344,8 @@ class SMARTCheck(object):
                     check_value = value if value_field == "VALUE" else raw_value
                     check_value = int(check_value or -1)
 
-                    logger.debug("Value field: %s, min: %s, max: %s, value: %s, raw_value: %s",
-                        value, min_value, max_value, value, raw_value
+                    logger.debug("Attribute %s, field: %s, min: %s, max: %s, value: %s, raw_value: %s",
+                        attrid, value, min_value, max_value, value, raw_value
                     )
 
                     if not (int(min_value) <= check_value <= int(max_value)):
