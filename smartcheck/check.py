@@ -248,12 +248,15 @@ class SMARTCheck(object):
     def check(self, ignore_attributes=None):
         return len(self.check_attributes(ignore_attributes or [])) == 0 and self.check_tests() and self.ata_error_count == 0
 
-    def check_tests(self):
+    def check_tests(self, latest_only=False):
         ok_test_results = [
             'Completed without error',
             'Interrupted (host reset)', # reboot during self test
             'Aborted by host'
         ]
+        if latest_only and self.self_tests['test_results']:
+            return not self.self_tests['test_results'][2] in ok_test_results
+
         return not any([x[2] not in ok_test_results for x in self.self_tests['test_results']])
 
     def check_attributes(self, ignore_attributes=None):

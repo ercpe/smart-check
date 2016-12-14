@@ -6,6 +6,7 @@ from smartcheck.check import SMARTCheck, AttributeWarning, parse_range_specifier
 samples_path = os.path.join(os.path.dirname(__file__), 'samples')
 db_path = os.path.join(samples_path, '../../smartcheck/disks.yaml')
 
+
 class CheckTest(unittest.TestCase):
 
     def test_check_broken1(self):
@@ -180,6 +181,17 @@ ID# ATTRIBUTE_NAME          FLAG     VALUE WORST THRESH TYPE      UPDATED  WHEN_
             self.assertEqual(failed, {
                 (5, 'Reallocated_Sector_Ct'): AttributeWarning(AttributeWarning.Notice, 'Reallocated_Sector_Ct', 84)
             })
+
+    def test_check_recovered_self_tests(self):
+        with open(os.path.join(samples_path, 'seagate-barracuda-broken2.txt')) as f:
+            check = SMARTCheck(f)
+            self.assertFalse(check.check_tests())
+            self.assertFalse(check.check())
+
+        with open(os.path.join(samples_path, 'seagate-barracuda-broken2.txt')) as f:
+            check = SMARTCheck(f)
+            self.assertTrue(check.check_tests(latest_only=True))
+            self.assertFalse(check.check())
 
     def test_parse_range_specifier(self):
         # greater than

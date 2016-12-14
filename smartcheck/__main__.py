@@ -47,6 +47,9 @@ def main():
     parser.add_argument('-x', '--exclude-notices', help='Do not report NOTICE warnings (default: %(default)s)', action='store_true', default=False)
     parser.add_argument('-n', '--notices-are-warnings', help='Exit with status code 1 on NOTICEs too (default: %(default)s)', action='store_true', default=False)
 
+    parser.add_argument('--accept-recovered-self-test', action='store_true', default=False,
+                        help='Only check the latest self test (accept a newer self tests without error)')
+
     parser.add_argument('--ignore-attributes', help='Ignore this S.M.A.R.T. attributes (id or name)', nargs='*')
     parser.add_argument('-v', '--verbose', help='Verbose messages', action='store_true', default=False)
     parser.add_argument('--debug', help="Print debug messages", action="store_true", default=False)
@@ -102,7 +105,7 @@ def main():
                 if any((ae.level == AttributeWarning.Critical for ae in attribute_errors.values())):
                     exit_code = 2
 
-            if not check.check_tests():
+            if not check.check_tests(latest_only=args.accept_recovered_self_test):
                 msg = (msg.strip() + '; S.M.A.R.T. self test reported an error').lstrip(';').strip()
                 exit_code = 2
 
