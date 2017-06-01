@@ -1,7 +1,5 @@
 TARGET?=tests
 
-VERSION := $(shell grep -Po '"(.*)"' smartcheck/__init__.py | sed -e 's/"//g')
-
 test_default_python:
 	PYTHONPATH="." python tests/ -v
 
@@ -29,9 +27,6 @@ coverage:
 	coverage xml -i
 	coverage report -m
 
-sonar:
-	/usr/local/bin/sonar-scanner/bin/sonar-scanner -Dsonar.projectVersion=$(VERSION)
-
 clean:
 	find -name "*.py?" -delete
 	rm -f coverage.xml testresults.xml
@@ -39,4 +34,8 @@ clean:
 
 travis: compile compile_optimized test_default_python coverage
 
-jenkins: travis sonar
+install_deps:
+	pip install -r requirements.txt
+	pip install -r requirements_dev.txt
+
+jenkins: install_deps travis
