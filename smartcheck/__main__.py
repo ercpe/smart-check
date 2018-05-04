@@ -86,7 +86,7 @@ def main():
         check = SMARTCheck(stream, args.disks_file)
 
         if check.data_parsed:
-            attribute_errors = check.check_attributes()
+            attribute_errors = check.check_attributes(ignore_attributes=args.ignore_attributes)
 
             if args.exclude_notices:
                 for k in [x for x, y in attribute_errors.items() if y.level == AttributeWarning.Notice]:
