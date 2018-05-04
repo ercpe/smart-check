@@ -75,5 +75,5 @@ It checks that the following attributes have a non-zero value for  `VALUE`/`RAW_
 
 If you want to ignore certain attributes (e.g. because your hard drive reports bogus values) pass the `--ignore-attributes` parameter to `smart-check`, e.g.:
 
-    smart-check --ignore-attributes Temperature_Celcius /dev/sda
+    smart-check --ignore-attributes Temperature_Celsius /dev/sda
     
