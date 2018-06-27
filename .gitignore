@@ -7,3 +7,9 @@ coverage.xml
 *.egg-info
 dist/
 build/
+
+.pybuild/
+debian/.debhelper
+debian/files
+debian/smart-check*
+
