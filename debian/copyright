@@ -1,0 +1,7 @@
+Format: http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: smart-check
+Upstream-Contact: Johann Schmitz <johann@j-schmitz.net>
+
+Files: *
+Copyright: 2015, Johann Schmitz <johann@j-schmitz.net>
+License: GPL-3

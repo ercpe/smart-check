@@ -29,8 +29,14 @@ coverage:
 
 clean:
 	find -name "*.py?" -delete
+	rm -rf smartcheck/__pycache__
 	rm -f coverage.xml testresults.xml
-	rm -fr htmlcov dist build smart_check.egg-info
+	rm -fr htmlcov dist build smart_check.egg-info deb_dist smart-check-*.tar.gz \
+	    .pybuild debian/.debhelper debian/smart-check \
+	    debian/smart-check.*
+
+deb:
+	debuild
 
 travis: compile compile_optimized test_default_python coverage
 

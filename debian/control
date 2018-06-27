@@ -1,0 +1,11 @@
+Source: smart-check
+Maintainer: Johann Schmitz <johann@j-schmitz.net>
+Build-Depends: debhelper (>= 11~), dh-python, python3-all, python3-setuptools
+Standards-Version: 3.9.2
+X-Python3-Version: >= 3.4
+
+Package: smart-check
+Architecture: all
+Depends: python3-yaml, smartmontools, ${python3:Depends}, ${misc:Depends}
+Description: A smart S.M.A.R.T. check
+ Long description for smart-check
