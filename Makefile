@@ -44,4 +44,8 @@ install_deps:
 	pip install -r requirements.txt
 	pip install -r requirements_dev.txt
 
-jenkins: install_deps travis
+install_deps_local:
+	pip install --user -r requirements.txt
+	pip install --user -r requirements_dev.txt
+
+jenkins: install_deps_local travis
