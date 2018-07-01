@@ -14,13 +14,7 @@ node('docker') {
 
     stage('Debian packaging') {
         docker.withRegistry('https://r.ercpe.de', 'docker-registry') {
-            def build = docker.image('r.ercpe.de/ercpe/ubuntu-build:latest');
-
-            // https://github.com/jenkinsci/docker-workflow-plugin/pull/57
-            build.inside('--user root:root') {
-                sh "apt update && apt install -y dh-python python3-all python3-setuptools"
-            }
-            build.inside {
+            docker.image('r.ercpe.de/ercpe/ubuntu-build:latest').inside {
                 sh "make deb"
             }
         }
