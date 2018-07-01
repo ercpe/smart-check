@@ -12,12 +12,12 @@ node('docker') {
         }
     }
 
-    stage('Debian packaging') {
-        docker.withRegistry('https://r.ercpe.de', 'docker-registry') {
-            docker.image('r.ercpe.de/ercpe/ubuntu-build:latest').inside {
-                sh "make deb"
-            }
-        }
-    }
+//  stage('Debian packaging') {
+//      docker.withRegistry('https://r.ercpe.de', 'docker-registry') {
+//          docker.image('r.ercpe.de/ercpe/ubuntu-build:latest').inside {
+//              sh "make deb"
+//          }
+//      }
+//  }
 
 }
