@@ -17,12 +17,13 @@ TESTS_SECTION_START = 'SMART Self-test log structure revision number'
 ATA_ERROR_COUNT = re.compile('^ATA Error Count: (\d+).*', re.MULTILINE | re.IGNORECASE)
 
 INFORMATION_RE = [
-    ("model_family", re.compile('Model Family: (.*)', re.UNICODE)),
-    ("device_model", re.compile("(?:Device Model|Product): (.*)", re.UNICODE)),
-    ("serial", re.compile("Serial Number: (.*)", re.UNICODE | re.IGNORECASE)),
-    ("firmware_version", re.compile("Firmware version: (.*)", re.UNICODE)),
-    ("ata_version", re.compile("ATA Version is: (.*)", re.UNICODE)),
-    ("sata_version", re.compile("SATA Version is: (.*)", re.UNICODE)),
+    ('model_family', re.compile(r'Model Family: (.*)', re.UNICODE)),
+    ('device_model', re.compile(r'(?:Device Model|Product): (.*)', re.UNICODE)),
+    ('serial', re.compile(r'Serial Number: (.*)', re.UNICODE | re.IGNORECASE)),
+    ('firmware_version', re.compile(r'Firmware version: (.*)', re.UNICODE)),
+    ('ata_version', re.compile(r'ATA Version is: (.*)', re.UNICODE)),
+    ('sata_version', re.compile(r'SATA Version is: (.*)', re.UNICODE)),
+    ('smart_support', re.compile(r'SMART support is:\s+(.*)', re.UNICODE))
 ]
 
 DATA_RE = [
@@ -138,7 +139,7 @@ class SMARTCheck(object):
         if self._database is None:
             if self.db_path:
                 with open(self.db_path) as f:
-                    self._database = yaml.load(f) or {}
+                    self._database = yaml.load(f, Loader=yaml.SafeLoader) or {}
             else:
                 self._database = []
         return self._database
@@ -148,7 +149,7 @@ class SMARTCheck(object):
         if self._generic is None:
             try:
                 with open(GENERIC_ATTRS_FILE) as f:
-                    self._generic = yaml.load(f) or []
+                    self._generic = yaml.load(f, Loader=yaml.SafeLoader) or []
             except:
                 logger.exception("Could not read %s", GENERIC_ATTRS_FILE)
         return self._generic
@@ -246,7 +247,14 @@ class SMARTCheck(object):
         return 0
 
     def check(self, ignore_attributes=None):
-        return len(self.check_attributes(ignore_attributes or [])) == 0 and self.check_tests() and self.ata_error_count == 0
+        # 1. the device should announce smart support in the info section
+        # 2. no attributes should indicate an unhealthy device
+        # 3. no short/long smart tests should have failed
+        # 4. no ATA errors recorded
+        return self.has_smart_support() and \
+               len(self.check_attributes(ignore_attributes or [])) == 0 and \
+               self.check_tests() and \
+               self.ata_error_count == 0
 
     def check_tests(self, latest_only=False):
         ok_test_results = [
@@ -384,3 +392,8 @@ class SMARTCheck(object):
                     raise ValueError("Unknown attribute specification: %s" % db_attrs)
 
         return failed_attributes
+
+    def has_smart_support(self):
+        return self.information and (
+            self.information.get('smart_support') == 'Enabled' or self.information.get('smart_support', '').startswith('Available')
+        )

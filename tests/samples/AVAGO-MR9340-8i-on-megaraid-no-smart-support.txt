@@ -1,0 +1,23 @@
+smartctl 7.0 2018-12-30 r4883 [x86_64-linux-3.10.0-1127.10.1.el7.x86_64] (local build)
+Copyright (C) 2002-18, Bruce Allen, Christian Franke, www.smartmontools.org
+
+=== START OF INFORMATION SECTION ===
+Vendor:               AVAGO
+Product:              MR9340-8i
+Revision:             4.62
+Compliance:           SPC-3
+User Capacity:        4,000,225,165,312 bytes [4.00 TB]
+Logical block size:   512 bytes
+Logical Unit id:      0x600605b00bf860b026c6a4e8041f90d5
+Serial number:        00d5901f04e8a4c626b060f80bb00506
+Device type:          disk
+Local Time is:        Thu Aug 13 10:10:30 2020 UTC
+SMART support is:     Unavailable - device lacks SMART capability.
+
+=== START OF READ SMART DATA SECTION ===
+Current Drive Temperature:     0 C
+Drive Trip Temperature:        0 C
+
+Error Counter logging not supported
+
+Device does not support Self Test logging

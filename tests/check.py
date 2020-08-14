@@ -229,3 +229,14 @@ ID# ATTRIBUTE_NAME          FLAG     VALUE WORST THRESH TYPE      UPDATED  WHEN_
         assert f(1) is False
         assert f(2) is False
 
+    def test_smart_not_supported_behind_megaraid(self):
+        # https://github.com/ercpe/smart-check/issues/5
+        #
+        # Either the device does not support S.M.A.R.T. at all or the megaraid controller prevents
+        # smartctl from working correctly. Either way, make sure that we don't report an OK
+        # when the smartctl output reports no SMART capability.
+
+        with open(os.path.join(samples_path, 'AVAGO-MR9340-8i-on-megaraid-no-smart-support.txt')) as f:
+            check = SMARTCheck(f)
+            self.assertTrue(check.check_tests())
+            self.assertFalse(check.check())

@@ -86,31 +86,35 @@ def main():
         check = SMARTCheck(stream, args.disks_file)
 
         if check.data_parsed:
-            attribute_errors = check.check_attributes(ignore_attributes=args.ignore_attributes)
-
-            if args.exclude_notices:
-                for k in [x for x, y in attribute_errors.items() if y.level == AttributeWarning.Notice]:
-                    del attribute_errors[k]
-
-            if attribute_errors:
-                msg = ', '.join([ae.long_message if args.verbose else ae.short_message for ae in attribute_errors.values()])
-
-                # set the exit code of NOTICEs to WARNINGs if (-n / --notices-are-warnings) is set
-                if args.notices_are_warnings and \
-                        any((ae.level == AttributeWarning.Notice for ae in attribute_errors.values())):
-                    exit_code = 1
-
-                if any((ae.level == AttributeWarning.Warning for ae in attribute_errors.values())):
-                    exit_code = 1
-                if any((ae.level == AttributeWarning.Critical for ae in attribute_errors.values())):
+            if check.has_smart_support():
+                attribute_errors = check.check_attributes(ignore_attributes=args.ignore_attributes)
+    
+                if args.exclude_notices:
+                    for k in [x for x, y in attribute_errors.items() if y.level == AttributeWarning.Notice]:
+                        del attribute_errors[k]
+    
+                if attribute_errors:
+                    msg = ', '.join([ae.long_message if args.verbose else ae.short_message for ae in attribute_errors.values()])
+    
+                    # set the exit code of NOTICEs to WARNINGs if (-n / --notices-are-warnings) is set
+                    if args.notices_are_warnings and \
+                            any((ae.level == AttributeWarning.Notice for ae in attribute_errors.values())):
+                        exit_code = 1
+    
+                    if any((ae.level == AttributeWarning.Warning for ae in attribute_errors.values())):
+                        exit_code = 1
+                    if any((ae.level == AttributeWarning.Critical for ae in attribute_errors.values())):
+                        exit_code = 2
+    
+                if not check.check_tests(latest_only=args.accept_recovered_self_test):
+                    msg = (msg.strip() + '; S.M.A.R.T. self test reported an error').lstrip(';').strip()
                     exit_code = 2
-
-            if not check.check_tests(latest_only=args.accept_recovered_self_test):
-                msg = (msg.strip() + '; S.M.A.R.T. self test reported an error').lstrip(';').strip()
-                exit_code = 2
-
-            if check.ata_error_count:
-                msg = (msg.strip() + '; %s ATA errors found' % check.ata_error_count).lstrip(';').strip()
+    
+                if check.ata_error_count:
+                    msg = (msg.strip() + '; %s ATA errors found' % check.ata_error_count).lstrip(';').strip()
+                    exit_code = 2
+            else:
+                msg = 'Device is missing S.M.A.R.T. support'
                 exit_code = 2
 
             if not exit_code and not msg:
