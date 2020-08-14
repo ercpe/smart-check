@@ -19,18 +19,21 @@ class InformationBlockParsingTest(unittest.TestCase):
                 'device_model': 'ST3000DM001-1CH166',
                 'model_family': 'Seagate Barracuda 7200.14 (AF)',
                 'sata_version': 'SATA 3.0, 6.0 Gb/s (current: 6.0 Gb/s)',
-                'serial': 'Z1F220RJ'
+                'serial': 'Z1F220RJ',
+                'smart_support': 'Available - device has SMART capability.'
                 }),
             ('seagate-barracuda-broken2.txt', {
                 'ata_version': 'ATA8-ACS T13/1699-D revision 4',
                 'device_model': 'ST3000DM001-1CH166',
                 'model_family': 'Seagate Barracuda 7200.14 (AF)',
                 'sata_version': 'SATA 3.0, 6.0 Gb/s (current: 6.0 Gb/s)',
-                'serial': 'Z1F23HW0'
+                'serial': 'Z1F23HW0',
+                'smart_support': 'Available - device has SMART capability.'
                 }),
             ('areca-WD40EFRX.txt', {
                 'device_model': 'WD40EFRX-68WT0N0',
-                'serial': 'WD-WCC4E0664813'
+                'serial': 'WD-WCC4E0664813',
+                'smart_support': 'Available - device has SMART capability.'
                 }),
             ]:
 
