@@ -12,7 +12,7 @@ setup(
     author='Johann Schmitz',
     author_email='johann@j-schmitz.net',
     url='https://ercpe.de/projects/smart-check',
-    download_url='https://code.not-your-server.de/smart-check.git/tags/',
+    download_url='https://git.ercpe.de/ercpe/smart-check/releases',
     packages=['smartcheck'],
     package_data={'smartcheck': ['*.yaml']},
     zip_safe=False,
