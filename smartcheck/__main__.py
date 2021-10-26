@@ -86,7 +86,7 @@ def main():
         check = SMARTCheck(stream, args.disks_file)
 
         if check.data_parsed:
-            if check.has_smart_support():
+            if check.has_smart_support() or check.is_nvme:
                 attribute_errors = check.check_attributes(ignore_attributes=args.ignore_attributes)
     
                 if args.exclude_notices:
@@ -106,11 +106,11 @@ def main():
                     if any((ae.level == AttributeWarning.Critical for ae in attribute_errors.values())):
                         exit_code = 2
     
-                if not check.check_tests(latest_only=args.accept_recovered_self_test):
+                if not check.is_nvme and not check.check_tests(latest_only=args.accept_recovered_self_test):
                     msg = (msg.strip() + '; S.M.A.R.T. self test reported an error').lstrip(';').strip()
                     exit_code = 2
     
-                if check.ata_error_count:
+                if not check.is_nvme and check.ata_error_count:
                     msg = (msg.strip() + '; %s ATA errors found' % check.ata_error_count).lstrip(';').strip()
                     exit_code = 2
             else:
@@ -120,7 +120,11 @@ def main():
             if not exit_code and not msg:
                 msg = "S.M.A.R.T. data OK"
 
-            msg = "%s: %s" % (check.device_model, msg)
+            # device naming is different between nvme and non-nvme
+            if not check.is_nvme:
+                msg = "%s: %s" % (check.device_model, msg)
+            else:
+                msg = "%s: %s" % (check.model_number, msg)
         else:
             msg = "Could not read S.M.A.R.T. data from %s. Does the disk exists? (executed as root?)" % args.drive
             exit_code = 3

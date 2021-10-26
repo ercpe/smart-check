@@ -9,10 +9,12 @@ import os
 logger = logging.getLogger(__name__)
 
 DEFAULT_DISKS_FILE=os.path.join(os.path.dirname(__file__), 'disks.yaml')
+DEFAULT_DISKS_FILE_NVME=os.path.join(os.path.dirname(__file__), 'nvme.yaml')
 GENERIC_ATTRS_FILE=os.path.join(os.path.dirname(__file__), 'generic.yaml')
 
 INFORMATION_SECTION_START = '=== START OF INFORMATION SECTION ==='
 DATA_SECTION_START = '=== START OF READ SMART DATA SECTION ==='
+DATA_SECTION_START_NVME = '=== START OF SMART DATA SECTION ==='
 TESTS_SECTION_START = 'SMART Self-test log structure revision number'
 ATA_ERROR_COUNT = re.compile('^ATA Error Count: (\d+).*', re.MULTILINE | re.IGNORECASE)
 
@@ -33,15 +35,43 @@ DATA_ATTRIBUTES_RE = re.compile(r"\s*(\d+)\s+([\w\d_\-]+)\s+([0-9a-fx]+)\s+(\d+)
 
 TEST_RESULT_RE = re.compile(r"#\s*(\d+)\s+(.*?)\s{2,}(.*?)\s{2,}\s+([\d%]+)\s+(\d+)\s+(\d+|-)", re.UNICODE)
 
+INFORMATION_RE_NVME = [
+    ('model_number', re.compile(r'Model Number:\s*(.*)', re.UNICODE)),
+    ('serial', re.compile(r'Serial Number: (.*)', re.UNICODE)),
+    ('firmware_version', re.compile(r'Firmware Version: (.*)', re.UNICODE)),
+]
+
+# SMART data attributes regex from nvme
+
+DATA_ATTRIBUTES_RE_NVME = [
+    ('critical_warning', re.compile(r'Critical Warning:\s*(0x[0-9a-f]{2})', re.UNICODE)),
+    ('available_spare', re.compile(r'Available Spare:\s*(\d+)%', re.UNICODE)),
+    ('available_spare_treshold', re.compile(r'Available Spare Threshold:\s*(\d+)%', re.UNICODE)),
+    ('unsafe_shutdowns', re.compile(r'Unsafe Shutdowns:\s*([0-9\.,]+)', re.UNICODE)),
+    ('media_and_data_integrity_errors', re.compile(r'Media and Data Integrity Errors:\s*([0-9\.,]+)', re.UNICODE)),
+    ('error_information_log_entries', re.compile(r'Error Information Log Entries:\s*([0-9\.,]+)')),
+    ('warning_comp_temperature_time', re.compile(r'Warning  Comp\. Temperature Time:\s*([0-9\.,]+)')),
+    ('critical_comp_temperature_time', re.compile(r'Critical Comp\. Temperature Time:\s*([0-9\.,]+)'))
+]
+
 
 def toint(s, default=0):
     try:
         return int(s)
     except ValueError:
-        return default
+        try:
+            return int(s, 16)
+        except ValueError:
+            return default
 
 
 def parse_range_specifier(s):
+    s = str(s)
+    s = ''.join(re.split("[.,]", s))
+    try:
+        s = int(s)
+    except ValueError:
+        pass
     # should be functional equivalent to the next one
     if isinstance(s, int):
         return lambda x: x > s
@@ -116,6 +146,10 @@ class SMARTCheck(object):
         self._database = None
         self._generic = None
 
+        # boolean field, either true: is nvme, or false: not an nvme
+        self.is_nvme = None
+        self.set_nvme(self.raw)
+
     @property
     def information(self):
         return self.parsed.get('information', {})
@@ -144,19 +178,24 @@ class SMARTCheck(object):
                 self._database = []
         return self._database
 
-    @property
-    def generic_attributes_checks(self):
+    def generic_attributes_checks(self, file):
         if self._generic is None:
             try:
-                with open(GENERIC_ATTRS_FILE) as f:
+                with open(file) as f:
                     self._generic = yaml.load(f, Loader=yaml.SafeLoader) or []
             except:
-                logger.exception("Could not read %s", GENERIC_ATTRS_FILE)
+                logger.exception("Could not read %s", file)
         return self._generic
 
     @property
     def device_model(self):
+        if self.is_nvme:
+            return self.information['model_number']
         return self.information['device_model']
+
+    @property
+    def model_number(self):
+        return self.information['model_number']
 
     @property
     def ata_error_count(self):
@@ -166,27 +205,46 @@ class SMARTCheck(object):
         return self.get_attributes_from_database(self.device_model) is not None
 
     def get_attributes_from_database(self, device_model):
+        # device naming is different between nvme and non-nvme
+        if self.is_nvme:
+            parameter_name = 'model_number'
+        else:
+            parameter_name = 'model'
         for dev in self.database:
-            device_regexprs = dev['model'] if isinstance(dev['model'], list) else [dev['model']]
+            device_regexprs = dev[parameter_name] if isinstance(dev[parameter_name], list) else [dev[parameter_name]]
             if any(re.match(r, device_model, re.IGNORECASE) for r in device_regexprs):
-                logger.debug("Device exists in database (one of %s matches %s)", device_regexprs, self.device_model)
                 return dev['attributes']
         logger.debug("Device does not exist in database")
         return None
 
+    def set_nvme(self, s):
+        if DATA_SECTION_START not in s:
+            self.is_nvme = True
+            self.db_path = DEFAULT_DISKS_FILE_NVME
+        else:
+            self.is_nvme = False
+
     def parse(self):
-        return {
-            'information': self.parse_information_section(self.raw),
-            'data': self.parse_data_section(self.raw),
-            'self_tests': self.parse_tests_section(self.raw),
-            'ata_error_count': self.parse_ata_error_count(self.raw),
-        }
+        # nvme smartctl output doesn't contain selftests or ata_error_count
+        # nvme and non-nvme have different separators between sections
+        if self.is_nvme:
+            return {
+                'information': self.parse_information_section(self.raw, DATA_SECTION_START_NVME, INFORMATION_RE_NVME),
+                'data': self.parse_data_section(self.raw, DATA_SECTION_START_NVME, DATA_ATTRIBUTES_RE_NVME)
+            }
+        else:
+            return {
+                'information': self.parse_information_section(self.raw, DATA_SECTION_START, INFORMATION_RE),
+                'data': self.parse_data_section(self.raw, DATA_SECTION_START, DATA_ATTRIBUTES_RE),
+                'self_tests': self.parse_tests_section(self.raw),
+                'ata_error_count': self.parse_ata_error_count(self.raw),
+            }
 
     @property
     def data_parsed(self):
         return 'attributes' in self.smart_data
 
-    def parse_information_section(self, s):
+    def parse_information_section(self, s, section_separator, info_specifier):
         if INFORMATION_SECTION_START not in s:
             return {}
 
@@ -195,23 +253,24 @@ class SMARTCheck(object):
         if DATA_SECTION_START not in s:
             end = len(s)
         else:
-            end = s.index(DATA_SECTION_START)
+            end = s.index(section_separator)
 
         information_text = s[start:end]
 
         d = {}
-        for k, regex in INFORMATION_RE:
+        for k, regex in info_specifier:
             m = regex.search(information_text)
             if m:
                 d[k] = m.group(1).strip() if m.group(1) else ''
+
         return d
 
-    def parse_data_section(self, s):
-        if DATA_SECTION_START not in s:
+    def parse_data_section(self, s, section_starter, data_specifier):
+        if section_starter not in s:
             logger.info("No data section found")
             return {}
 
-        start = s.index(DATA_SECTION_START)
+        start = s.index(section_starter)
         data_text = s[start:]
 
         d = {}
@@ -220,7 +279,17 @@ class SMARTCheck(object):
             if m:
                 d[k] = m.group(1).strip() if m.group(1) else ''
 
-        d['attributes'] = sorted(DATA_ATTRIBUTES_RE.findall(s), key=lambda t: int(t[0]))
+        if self.is_nvme:
+            attributes_list = []
+            for k, regex in data_specifier:
+                m = regex.search(data_text)
+                if m:
+                    m = m.group(1).strip() if m.group(1) else ''
+                    m = ''.join(re.split("[.,]", m))
+                    attributes_list.append((k, m))
+            d['attributes'] = sorted(attributes_list, key=lambda t: t[0])
+        else:
+            d['attributes'] = sorted(data_specifier.findall(s), key=lambda t: int(t[0]))
 
         return d
 
@@ -247,16 +316,22 @@ class SMARTCheck(object):
         return 0
 
     def check(self, ignore_attributes=None):
+        # NVMe check
+        # 1. no attributes should indicate an unhealthy device
+        if self.is_nvme:
+            return len(self.check_attributes(ignore_attributes or [])) == 0
+        # non-NVMe check
         # 1. the device should announce smart support in the info section
         # 2. no attributes should indicate an unhealthy device
         # 3. no short/long smart tests should have failed
         # 4. no ATA errors recorded
         return self.has_smart_support() and \
-               len(self.check_attributes(ignore_attributes or [])) == 0 and \
-               self.check_tests() and \
-               self.ata_error_count == 0
+                len(self.check_attributes(ignore_attributes or [])) == 0 and \
+                self.check_tests() and \
+                self.ata_error_count == 0
 
     def check_tests(self, latest_only=False):
+
         ok_test_results = [
             'Completed without error',
             'Interrupted (host reset)', # reboot during self test
@@ -268,18 +343,26 @@ class SMARTCheck(object):
         return not any([x[2] not in ok_test_results for x in self.self_tests['test_results']])
 
     def check_attributes(self, ignore_attributes=None):
-        failed_attributes = self.check_generic_attributes()
 
-        if self.exists_in_database():
-            failed_attributes.update(self.check_device_attributes())
-
+        # attribute checking differs between nvme and non-nvme
+        if self.is_nvme:
+            failed_attributes = self.check_attributes_nvme("GENERIC_NVME")
+            if self.exists_in_database():
+                failed_attributes.update(self.check_attributes_nvme(self.device_model))
+        else:
+            failed_attributes = self.check_generic_attributes()
+            if self.exists_in_database():
+                failed_attributes.update(self.check_device_attributes())
         # remove every AttributeWarning from failed_attributes based on ignore_attributes
         for attr_id_or_name in ignore_attributes or []:
             del_keys = []
-            if isinstance(attr_id_or_name, int) or attr_id_or_name.isdigit():
-                del_keys = [k for k in failed_attributes.keys() if k[0] == int(attr_id_or_name)]
+            if self.is_nvme:
+                del_keys = [k for k in failed_attributes.keys() if k == attr_id_or_name]
             else:
-                del_keys = [k for k in failed_attributes.keys() if k[1] == attr_id_or_name]
+                if isinstance(attr_id_or_name, int) or attr_id_or_name.isdigit():
+                    del_keys = [k for k in failed_attributes.keys() if k[0] == int(attr_id_or_name)]
+                else:
+                    del_keys = [k for k in failed_attributes.keys() if k[1] == attr_id_or_name]
 
             for x in del_keys:
                 del failed_attributes[x]
@@ -298,7 +381,7 @@ class SMARTCheck(object):
             int_raw_value = toint(raw_value)
             int_thresh = toint(thresh)
 
-            for rule in self.generic_attributes_checks:
+            for rule in self.generic_attributes_checks(GENERIC_ATTRS_FILE):
                 if attr_name not in rule.get('attributes', []):
                     continue
 
@@ -327,6 +410,40 @@ class SMARTCheck(object):
                                                                 "Attribute value dropped below threshold of %s" % int_thresh)
 
         logger.debug("Failed generic attributes: %s" % failed_attributes)
+        return failed_attributes
+
+    def check_attributes_nvme(self, device_model):
+        device_db_attributes = self.get_attributes_from_database(device_model)
+        avsp = 0 
+        avsp_tres = 0
+        failed_attributes = {}
+
+        for name, value in self.smart_data['attributes']:
+            logger.debug("Attribute: %s: value=%s", name, value)
+
+            if name == "available_spare":
+                avsp = value
+            elif name == "available_spare_treshold":
+                avsp_tres = value
+
+            if name in device_db_attributes:
+                db_attrs = device_db_attributes[name]
+
+                # if format of attribute in yaml is of type dictionary
+                if isinstance(db_attrs, dict):
+                    check_value = toint(value)
+                    func = parse_range_specifier(db_attrs.get('value'))
+                    # check if attribute failed or not
+                    if func(check_value):
+                        failed_attributes[name] = AttributeWarning(getattr(AttributeWarning, db_attrs.get('warning_level')), name, value)
+                else:
+                    raise ValueError("Unknown attribute specification: %s" % db_attrs)
+        
+        # only attribute which has a threshold value as well is available_spare
+        if avsp < avsp_tres:
+            failed_attributes["Available Spare"] = AttributeWarning(AttributeWarning.Notice, "Available Spare", avsp,
+                                                                    "Attribute value dropped below threshold %s" % avsp_tres)
+
         return failed_attributes
 
     def check_device_attributes(self):

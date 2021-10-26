@@ -1,0 +1,36 @@
+# S.M.A.R.T attribute thresholds per nvme device
+#
+# WARNING: model_number name "GENERIC_NVME" is explicitly reserved for the threshold value
+#   for nvme models which don't exist in the database.
+#
+# - model_number: <model_number>
+#   attributes:
+#     value: <value>|<:value>|<value:>|<value:value>
+#     warning_level: Critical|Warning|Notice
+#
+#     <value:> = everything ABOVE value is failed
+#     <:value> = everything BELOW value is failed
+#     <value:value> = everything BETWEEN the values is failed
+
+- model_number: "GENERIC_NVME"
+  attributes:
+    critical_warning:
+      value: "0:"
+      warning_level: Critical
+    critical_comp_temperature_time:
+      value: "0:"
+      warning_level: Critical
+    warning_comp_temperature_time:
+      value: "0:"
+      warning_level: Warning
+    unsafe_shutdowns:
+      value: "499:"
+      warning_level: Notice
+    media_and_data_integrity_errors:
+      value: "0:"
+      warning_level: Warning
+    error_information_log_entries:
+      value: "0:"
+      warning_level: Notice
+
+
