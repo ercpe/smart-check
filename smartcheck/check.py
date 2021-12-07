@@ -55,12 +55,12 @@ DATA_ATTRIBUTES_RE_NVME = [
 ]
 
 
-def toint(s, default=0):
+def toint(s, base=10, default=0):
     try:
         return int(s)
     except ValueError:
         try:
-            return int(s, 16)
+            return int(s, base)
         except ValueError:
             return default
 
@@ -147,8 +147,9 @@ class SMARTCheck(object):
         self._generic = None
 
         # boolean field, either true: is nvme, or false: not an nvme
-        self.is_nvme = None
-        self.set_nvme(self.raw)
+        self.is_nvme = DATA_SECTION_START_NVME in self.raw and DATA_SECTION_START not in self.raw
+        if self.is_nvme:
+            self.db_path = DEFAULT_DISKS_FILE_NVME
 
     @property
     def information(self):
@@ -216,13 +217,6 @@ class SMARTCheck(object):
                 return dev['attributes']
         logger.debug("Device does not exist in database")
         return None
-
-    def set_nvme(self, s):
-        if DATA_SECTION_START not in s:
-            self.is_nvme = True
-            self.db_path = DEFAULT_DISKS_FILE_NVME
-        else:
-            self.is_nvme = False
 
     def parse(self):
         # nvme smartctl output doesn't contain selftests or ata_error_count
@@ -431,7 +425,10 @@ class SMARTCheck(object):
 
                 # if format of attribute in yaml is of type dictionary
                 if isinstance(db_attrs, dict):
-                    check_value = toint(value)
+                    if 'x' in value:
+                        check_value = toint(value, base=16)
+                    else:
+                        check_value = toint(value)
                     func = parse_range_specifier(db_attrs.get('value'))
                     # check if attribute failed or not
                     if func(check_value):
