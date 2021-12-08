@@ -240,3 +240,23 @@ ID# ATTRIBUTE_NAME          FLAG     VALUE WORST THRESH TYPE      UPDATED  WHEN_
             check = SMARTCheck(f)
             self.assertTrue(check.check_tests())
             self.assertFalse(check.check())
+
+# NVME Tests
+
+    def test_check_nvme_in_database(self):
+        with open(os.path.join(samples_path, 'SKHynix-nvme.txt')) as f:
+            check = SMARTCheck(f)
+            self.assertTrue(check.check())
+
+    def test_check_warning_amount(self):
+        with open(os.path.join(samples_path, 'Samsung-nvme-critical-warning.txt')) as f:
+            check = SMARTCheck(f)
+            self.assertFalse(check.check())
+
+            failed = check.check_attributes()
+            self.assertEqual(len(failed), 2)
+            self.assertEqual(failed, {'critical_warning':
+                                          AttributeWarning(AttributeWarning.Critical, 'critical_warning', '0x04'),
+                                      'error_information_log_entries': AttributeWarning(AttributeWarning.Notice,
+                                          'error_information_log_entries', '135')
+                                     })

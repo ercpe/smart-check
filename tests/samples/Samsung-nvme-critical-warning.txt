@@ -1,0 +1,77 @@
+=== START OF INFORMATION SECTION ===
+Model Number:                       Samsung SSD 960 EVO 500GB
+Serial Number:                      XXXXXXXXXXXXXXXXX
+Firmware Version:                   2B7QCXE7
+PCI Vendor/Subsystem ID:            0x144d
+IEEE OUI Identifier:                0x002538
+Total NVM Capacity:                 500,107,862,016 [500 GB]
+Unallocated NVM Capacity:           0
+Controller ID:                      2
+Number of Namespaces:               1
+Namespace 1 Size/Capacity:          500,107,862,016 [500 GB]
+Namespace 1 Utilization:            244,207,935,488 [244 GB]
+Namespace 1 Formatted LBA Size:     512
+Namespace 1 IEEE EUI-64:            002538 5371b0e432
+Local Time is:                      Mon Jul 29 00:23:32 2019 CEST
+Firmware Updates (0x16):            3 Slots, no Reset required
+Optional Admin Commands (0x0007):   Security Format Frmw_DL
+Optional NVM Commands (0x001f):     Comp Wr_Unc DS_Mngmt Wr_Zero Sav/Sel_Feat
+Maximum Data Transfer Size:         512 Pages
+Warning  Comp. Temp. Threshold:     77 Celsius
+Critical Comp. Temp. Threshold:     79 Celsius
+
+Supported Power States
+St Op     Max   Active     Idle   RL RT WL WT  Ent_Lat  Ex_Lat
+ 0 +     6.04W       -        -    0  0  0  0        0       0
+ 1 +     5.09W       -        -    1  1  1  1        0       0
+ 2 +     4.08W       -        -    2  2  2  2        0       0
+ 3 -   0.0400W       -        -    3  3  3  3      210    1500
+ 4 -   0.0050W       -        -    4  4  4  4     2200    6000
+
+Supported LBA Sizes (NSID 0x1)
+Id Fmt  Data  Metadt  Rel_Perf
+ 0 +     512       0         0
+
+=== START OF SMART DATA SECTION ===
+SMART overall-health self-assessment test result: FAILED!
+- NVM subsystem reliability has been degraded
+
+SMART/Health Information (NVMe Log 0x02)
+Critical Warning:                   0x04
+Temperature:                        42 Celsius
+Available Spare:                    100%
+Available Spare Threshold:          10%
+Percentage Used:                    102%
+Data Units Read:                    168,638,229 [86.3 TB]
+Data Units Written:                 631,781,984 [323 TB]
+Host Read Commands:                 2,498,997,755
+Host Write Commands:                3,364,105,515
+Controller Busy Time:               27,544
+Power Cycles:                       211
+Power On Hours:                     12,433
+Unsafe Shutdowns:                   123
+Media and Data Integrity Errors:    0
+Error Information Log Entries:      135
+Warning  Comp. Temperature Time:    0
+Critical Comp. Temperature Time:    0
+Temperature Sensor 1:               42 Celsius
+Temperature Sensor 2:               64 Celsius
+
+Error Information (NVMe Log 0x01, max 64 entries)
+Num   ErrCount  SQId   CmdId  Status  PELoc          LBA  NSID    VS
+  0        135     0  0x0004  0x4202  0x028            0     0     -
+  1        134     0  0x0004  0x4202  0x028            0     0     -
+  2        133     0  0x0004  0x4202  0x028            0     0     -
+  3        132     0  0x0004  0x4202  0x028            0     0     -
+  4        131     0  0x0004  0x4202  0x028            0     0     -
+  5        130     0  0x0004  0x4202  0x028            0     0     -
+  6        129     0  0x0004  0x4202  0x028            0     0     -
+  7        128     0  0x0004  0x4202  0x028            0     0     -
+  8        127     0  0x0004  0x4202  0x028            0     0     -
+  9        126     0  0x0004  0x4202  0x028            0     0     -
+ 10        125     0  0x0004  0x4202  0x028            0     0     -
+ 11        124     0  0x0004  0x4202  0x028            0     0     -
+ 12        123     0  0x0004  0x4202  0x028            0     0     -
+ 13        122     0  0x0004  0x4202  0x028            0     0     -
+ 14        121     0  0x0004  0x4202  0x028            0     0     -
+ 15        120     0  0x0004  0x4202  0x028            0     0     -
